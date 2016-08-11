@@ -1,0 +1,56 @@
+{
+	"name": "MaterialCreatePage",
+	"version": "0.1.0",
+	"author": [
+		"[http://kwiki.co.il Kwiki]",
+		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
+		"[[mw:user:Yacohen|Yacohen]]"
+	],
+	"url": "doalogue-kwiki/MaterialCreatePage",
+	"descriptionmsg": "MaterialCreatePage-desc",
+	"license-name": "GPL v2",
+	"type": "other",
+	"AutoloadClasses": {
+		"MaterialFABHooks": "MaterialCreatePage.hooks.php"
+	},
+	"ExtensionMessagesFiles": {
+		"MaterialFABAlias": "MaterialCreatePage.i18n.alias.php"
+	},
+	"Hooks": {
+		"BeforePageDisplay": [
+			"MaterialCreatePageHooks::onBeforePageDisplay"
+		]
+	},
+	"MessagesDirs": {
+		"MaterialFAB": [
+			"i18n"
+		]
+	},
+	"ResourceModules": {
+		"ext.MaterialCreatePage": {
+			"scripts": [
+				"modules/ext.MaterialCreatePage.js"                
+			],
+			"styles": [
+				"modules/ext.MaterialCreatePage.css" 			
+			],
+            "messages": [
+                "create-toggle-popup",
+                "categories-toggle-popup",
+                "files-toggle-popup",
+                "upload-toggle-popup"
+            ],
+			"dependencies": [
+                "ext.MaterialFAB",
+                "oojs",
+                "oojs-ui"
+            ]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "MaterialCreatePage"
+	},
+	"SpecialPages": {},
+	"manifest_version": 1
+}

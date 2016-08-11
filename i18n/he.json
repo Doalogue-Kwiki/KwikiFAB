@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+			"Hagai Asaban"
+		]
+	},
+    "MaterialCreatePage-desc": "Material Fixed Action Menu Button Create Page Extension",
+    "create-toggle-popup": "צור דף",
+    "categories-toggle-popup": "ערוך קטגוריות",
+    "files-toggle-popup": "רשימת קבצים",
+    "upload-toggle-popup": "העלה קובץ"
+}
