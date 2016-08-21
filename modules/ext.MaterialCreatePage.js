@@ -54,52 +54,11 @@
 		
 		$( document ).on( "click", "#create_toggle", function(e) {
 			e.preventDefault();            
-			loadCreatePageModal();
+			loadApiData();
 		});
     };
 
-	function loadCreatePageModal() {
-		
-		var categories = mw.template.get( "ext.MaterialCreatePage", "select2.mustache" );		
-		
-		var api = new mw.Api();		
-		//var categoriesData;
-		/*api.get( {
-			formatversion: 2,
-			action: 'query',
-			prop: 'categories',
-			aclimit: 5000,
-			list: 'allcategories'
-		} ).done( function ( res ) {
-			var categories = res.query.allcategories;
-			categoriesData = JSON.stringify({categories});
-			
-		} );*/
-		
-		var categoriesData = {"categories":[{"category":"API"},{"category":"Accessibility"},{"category":"HTML"},{"category":"Inside"},
-			{"category":"JQuery"},{"category":"JS"},{"category":"JavaScript"},{"category":"Kwiki"},{"category":"Network"},
-			{"category":"OO"},{"category":"OO.js"},{"category":"OOjs.ui"},{"category":"Old"},{"category":"RestBASE"},{"category":"UI"},
-			{"category":"Wiki"},{"category":"אבדוקציה"},{"category":"אודות"},{"category":"אינפוגרפיקה"},{"category":"אקוסיסטם"},
-			{"category":"אתגר הסתגלותי"},{"category":"אתגר טכני"},{"category":"בינה ארגונית"},{"category":"בלוגוספירה"},
-			{"category":"בעיה טכנית"},{"category":"דפים עם קישורים שבורים לקבצים"},{"category":"דפים עם שגיאות בצביעת קוד"},
-			{"category":"האתגר החבוי"},{"category":"הכשרה"},{"category":"המנעות מעבודה"},{"category":"המרפסת"},{"category":"הסתגלות"},
-			{"category":"העבודה במרכז"},{"category":"העלאה"},{"category":"הצעות מחיר"},{"category":"הרחבות"},{"category":"הרשאות"},
-			{"category":"השפעה"},{"category":"ויקי"},{"category":"חברתי-כלכלי"},{"category":"חשיבה בסיסית"},{"category":"טבלת הפיצה"},
-			{"category":"טכני"},{"category":"טמפרטורה"},{"category":"טק-קריירה"},{"category":"טק קריירה"},{"category":"יזמות"},
-			{"category":"מדיה-ויקי"},{"category":"מדיה ויקי"},{"category":"מושג"},{"category":"מישוב"},{"category":"ממשק"},
-			{"category":"מנהיגות"},{"category":"מנהיגות הסתגלותית"},{"category":"מסוגלות טכנולוגית"},{"category":"מסמכים"},
-			{"category":"מערכות"},{"category":"מערכות סבוכות"},{"category":"מפה מושגית"},{"category":"מצגות"},{"category":"מרכז פרח"},
-			{"category":"משובים"},{"category":"מתדולוגיה"},{"category":"מתודולוגיה"},{"category":"ניהול"},{"category":"סטארט אפ"},
-			{"category":"סיפור"},{"category":"סמכות"},{"category":"סנסורינג"},{"category":"עולם סבוך"},{"category":"עורך חזותי"},
-			{"category":"עיצוב"},{"category":"עמוד ראשי"},{"category":"פיתוח ידע"},{"category":"פער רלוונטיות"},{"category":"פרדיגמה"},
-			{"category":"פרוייקטים"},{"category":"פרזי"},{"category":"צוות שילובי"},{"category":"צירופים"},{"category":"צירי ההכשרה"},
-			{"category":"צפת"},{"category":"קאנון"},{"category":"קורסים והכשרות"},{"category":"קטגוריות"},{"category":"קינפין"},
-			{"category":"רחבת הריקודים"},{"category":"רשתות חברתיות"},{"category":"שולחן עגול"},{"category":"שועליות"},
-			{"category":"שיח מומחים"},{"category":"שילוביות"},{"category":"שקף ה-V"},{"category":"תבניות"},{"category":"תהליך הלמידה"},
-			{"category":"תהליכי עבודה"},{"category":"תחומי המכון"},{"category":"תיאוריה"},{"category":"תכניות עבודה"},
-			{"category":"תכנית עבודה"},{"category":"תפיסת הזרז"}]};
-		console.log(categoriesData);
-		var randeredCategories = categories.render(categoriesData);
+	function loadCreatePageModal(randeredCategories) {
 		
 		var titleInput = new mw.widgets.TitleInputWidget( {
 			id: "title-input",
@@ -113,7 +72,7 @@
 		} );
 		
 		var categoriesSelector = new OO.ui.LabelWidget( {
-			label: $( randeredCategories )
+			label: $(randeredCategories)
 		} );
 		
 		/*var categoriesSelector = new mw.widgets.CategorySelector( {
@@ -179,7 +138,6 @@
 
 		var dialogTitle = mw.msg("modal-create-page-title");
 		var dialogHeight = 550;
-		
 		var materialDialog = CreateMaterialDialog( fieldset, dialogActionButtons, dialogTitle, dialogHeight );
 
 		materialDialog.getActionProcess = function ( action ) {
@@ -198,26 +156,42 @@
 		};
 		
 		$('#categories-multiselector').select2({
-			placeholder : 'Select all categories ...',
-			//dir: "rtl",
-			//allowClear: true,
-			tags: true,
-			createTag: function (params) {
-				var term = $.trim(params.term);
-
-				if (term === '') {
-				  return null;
-				}
-				
-				return {
-				  id: term,
-				  text: term,
-				  newTag: true // add additional parameters
-				}
+			placeholder : {
+				id: '-1', // the value of the option
+				text: 'Select all categories ...'
 			},
-			data: categoriesData
-		});
+			closeOnSelect: true,
+			dir: "rtl",
+			allowClear: true,
+			tags: true	
+		});		
+	};
+	
+	function loadApiData() {
 		
+		var template = mw.template.get( "ext.MaterialCreatePage", "select2.mustache" );		
+		var api = new mw.Api();	
+		
+		var categoriesData = [];
+		
+		api.get( {
+			formatversion: 2,
+			action: 'query',
+			prop: 'categories',
+			aclimit: 5000,
+			list: 'allcategories'
+		} ).done( function ( res ) {
+			var categories = res.query.allcategories;
+			categoriesData = 
+			{
+				categories: categories.map(function(item){
+					return item; 
+				})
+			};
+			randeredCategories = template.render(categoriesData);
+			console.log(categoriesData);			
+			loadCreatePageModal(randeredCategories);
+		} );		
 	};
 	
     $( function () {		
