@@ -5,7 +5,15 @@
 		]
 	},
     "MaterialCreatePage-desc": "Material Action Button for creating page extension",
-    "create-toggle-popup": "Create Page",
+	"modal-title-input-placeholder": "Enter Page name ...",
+	"modal-title-input-label": "Page name",
+	"modal-categories-selector-label": "Categories",
+	"modal-namespace-selector-label": "Namespace",
+	"modal-template-selector-label": "Template",
+    "modal-create-page-button": "Create",
+	"modal-create-page-title": "Create Page",
+	"modal-close-button": "Close",
+	"create-toggle-popup": "Create Page",	
     "categories-toggle-popup":"Edit Categories",
     "files-toggle-popup": "File List",
     "upload-toggle-popup": "Upload"

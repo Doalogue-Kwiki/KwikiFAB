@@ -11,10 +11,10 @@
 	"license-name": "GPL v2",
 	"type": "other",
 	"AutoloadClasses": {
-		"MaterialFABHooks": "MaterialCreatePage.hooks.php"
+		"MaterialCreatePageHooks": "MaterialCreatePage.hooks.php"
 	},
 	"ExtensionMessagesFiles": {
-		"MaterialFABAlias": "MaterialCreatePage.i18n.alias.php"
+		"MaterialCreatePageAlias": "MaterialCreatePage.i18n.alias.php"
 	},
 	"Hooks": {
 		"BeforePageDisplay": [
@@ -22,29 +22,51 @@
 		]
 	},
 	"MessagesDirs": {
-		"MaterialFAB": [
+		"MaterialCreatePage": [
 			"i18n"
 		]
 	},
 	"ResourceModules": {
 		"ext.MaterialCreatePage": {
+			"dependencies": [
+				"oojs-ui.styles.icons",
+				"oojs-ui.styles.icons-editing-advanced",
+				"mediawiki.api",
+				"mediawiki.widgets",
+				"mediawiki.Title",
+				"ext.MaterialFAB",
+				"mediawiki.widgets.CategorySelector",
+				"oojs",
+				"oojs-ui",
+				"oojs-ui-core",
+				"oojs-ui-widgets"
+			],
 			"scripts": [
+				"lib/select2/select2.min.js",
+				"modules/materialDialog.js",
 				"modules/ext.MaterialCreatePage.js"                
 			],
 			"styles": [
-				"modules/ext.MaterialCreatePage.css" 			
+				"lib/select2/select2.css",
+				"modules/ext.MaterialCreatePage.css"
 			],
             "messages": [
+				"modal-title-input-placeholder",
+				"modal-title-input-label",
+				"modal-categories-selector-label",
+				"modal-namespace-selector-label",
+				"modal-template-selector-label",
+				"modal-create-page-button",
+				"modal-create-page-title",
+				"modal-close-button",
                 "create-toggle-popup",
                 "categories-toggle-popup",
                 "files-toggle-popup",
                 "upload-toggle-popup"
             ],
-			"dependencies": [
-                "ext.MaterialFAB",
-                "oojs",
-                "oojs-ui"
-            ]
+			"templates": {
+				"select2.mustache" : "templates/select2.mustache"
+			}			
 		}
 	},
 	"ResourceFileModulePaths": {

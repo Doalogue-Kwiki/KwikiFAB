@@ -1,6 +1,46 @@
-#md-create-page-menu {
-/*	position: fixed;
-    left: 0;
-    float: left;
-    top: 15vh;*/
+.oo-ui-window-frame {	
+	box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
+    -webkit-transition: box-shadow .3s;
+    transition: box-shadow .3s;
+}
+
+.materialFieldset span {
+	font-weight: bold;
+    width: 100%;
+}
+
+.materialDialog [role="menu"]{
+	width: 100% !important;
+	max-width: 100% !important;
+	overflow-x: hidden !important;
+    overflow-y: scroll !important;
+}
+
+.materialDialog {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	right: 0;
+	padding-right: 20px;
+    padding-left: 20px;
+    padding-top: 5px;
+    -webkit-animation: fadeIn 1s .55s both;
+    animation: fadeIn 1s .55s both;
+}
+@-webkit-keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
