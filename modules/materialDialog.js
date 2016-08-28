@@ -27,7 +27,7 @@ function CreateMaterialDialog( fieldset, dialogActionButtons, dialogTitle, dialo
 	};
 	
 	var materialDialog = new MaterialDialog( {
-		size: 'medium'
+		size: 'large'
 	} );
 		
 	// Create and append a window manager, which opens and closes the window.

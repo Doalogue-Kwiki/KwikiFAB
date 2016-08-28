@@ -6,7 +6,15 @@
 
 .materialFieldset span {
 	font-weight: bold;
+	font-size: 16px !important;
     width: 100%;
+}
+
+.materialDialog [role="combobox"]{
+	width: 100% !important;
+	max-width: 100% !important;
+	overflow-x: hidden !important;
+    overflow-y: scroll !important;
 }
 
 .materialDialog [role="menu"]{

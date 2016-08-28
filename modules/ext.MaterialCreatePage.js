@@ -3,7 +3,7 @@
  */
 ( function ( mw, $ ) {
     
-    function loadMaterialCreatePage() {
+    function loadMaterialCreatePage(api) {
         
         var menu = mw.template.get( "ext.MaterialFAB", "menu.mustache" );		
 
@@ -54,17 +54,15 @@
 		
 		$( document ).on( "click", "#create_toggle", function(e) {
 			e.preventDefault();            
-			loadCreatePageModal();
+			loadApiData(api);
 		});
     };
-
-	function loadCreatePageModal() {
+	
+	function loadApiData(api) {
+	
+		var categoriesData = new Array();
 		
-		var categories = mw.template.get( "ext.MaterialCreatePage", "select2.mustache" );		
-		
-		var api = new mw.Api();		
-		//var categoriesData;
-		/*api.get( {
+		api.get( {
 			formatversion: 2,
 			action: 'query',
 			prop: 'categories',
@@ -72,68 +70,108 @@
 			list: 'allcategories'
 		} ).done( function ( res ) {
 			var categories = res.query.allcategories;
-			categoriesData = JSON.stringify({categories});
-			
+
+			categories.map(function(item) {
+				categoriesData.push( 
+					new OO.ui.MenuOptionWidget( {
+						data:  item.category,
+						label: item.category,
+					} )
+				);
+			});
+			loadCreatePageModal(categoriesData, api);
+		} );		
+	};
+	
+	function apiCreatePageWithContext(api, pageTitle, content){
+		
+		var params = "";
+		
+		api.postWithEditToken( $.extend( {
+			action: 'edit',
+			title: pageTitle,
+			text: content,
+			formatversion: '2',
+
+			// Protect against errors and conflicts
+			assert: mw.user.isAnon() ? undefined : 'user',
+			createonly: true
+		}, params ) ).then( function () {			
+			window.location.href = "/w/index.php?title=" + pageTitle + "&veaction=edit";
+		} );					
+	};
+	
+	function loadWikiTextFromPage(api, templateTitle, pageTitle, selectedCategoriesText) {
+		var wikiText = "";
+		var templateTitleText = templateTitle.toText();
+		
+		if (templateTitleText) {			
+			api.get( {
+				formatversion: 2,
+				action: 'query',
+				prop: 'revisions',
+				titles: templateTitleText,
+				rvprop: "content",
+				rvexpandtemplates: true
+			} ).done( function ( res ) {
+				wikiText = res.query.pages[0].revisions[0].content;
+			} ).done( function ( ) {
+				var content = wikiText.concat(selectedCategoriesText);
+				apiCreatePageWithContext(api, pageTitle, content);
+			} );	
+		}
+		return wikiText;
+	}
+	
+	function loadCreatePageModal(categoriesData, api) {
+		
+		var complexTitleInput = new mw.widgets.ComplexTitleInputWidget( {
+			id: "title-and-namespace-input",
+			title: {
+				autofocus: true,
+				placeholder: mw.msg("modal-title-input-placeholder"),
+				indicator: 'required'		
+			},
+			namespace: {
+				includeAllValue: "",
+				dropdown: {
+					icon: "code",
+					label: mw.msg("modal-namespace-selector-label"),
+					iconTitle: mw.msg("modal-namespace-selector-label")
+				}
+			}
+		} );
+		
+		/*var namespaceSelector = new mw.widgets.NamespaceInputWidget( {
+			includeAllValue: "all namespaces"
 		} );*/
 		
-		var categoriesData = {"categories":[{"category":"API"},{"category":"Accessibility"},{"category":"HTML"},{"category":"Inside"},
-			{"category":"JQuery"},{"category":"JS"},{"category":"JavaScript"},{"category":"Kwiki"},{"category":"Network"},
-			{"category":"OO"},{"category":"OO.js"},{"category":"OOjs.ui"},{"category":"Old"},{"category":"RestBASE"},{"category":"UI"},
-			{"category":"Wiki"},{"category":"אבדוקציה"},{"category":"אודות"},{"category":"אינפוגרפיקה"},{"category":"אקוסיסטם"},
-			{"category":"אתגר הסתגלותי"},{"category":"אתגר טכני"},{"category":"בינה ארגונית"},{"category":"בלוגוספירה"},
-			{"category":"בעיה טכנית"},{"category":"דפים עם קישורים שבורים לקבצים"},{"category":"דפים עם שגיאות בצביעת קוד"},
-			{"category":"האתגר החבוי"},{"category":"הכשרה"},{"category":"המנעות מעבודה"},{"category":"המרפסת"},{"category":"הסתגלות"},
-			{"category":"העבודה במרכז"},{"category":"העלאה"},{"category":"הצעות מחיר"},{"category":"הרחבות"},{"category":"הרשאות"},
-			{"category":"השפעה"},{"category":"ויקי"},{"category":"חברתי-כלכלי"},{"category":"חשיבה בסיסית"},{"category":"טבלת הפיצה"},
-			{"category":"טכני"},{"category":"טמפרטורה"},{"category":"טק-קריירה"},{"category":"טק קריירה"},{"category":"יזמות"},
-			{"category":"מדיה-ויקי"},{"category":"מדיה ויקי"},{"category":"מושג"},{"category":"מישוב"},{"category":"ממשק"},
-			{"category":"מנהיגות"},{"category":"מנהיגות הסתגלותית"},{"category":"מסוגלות טכנולוגית"},{"category":"מסמכים"},
-			{"category":"מערכות"},{"category":"מערכות סבוכות"},{"category":"מפה מושגית"},{"category":"מצגות"},{"category":"מרכז פרח"},
-			{"category":"משובים"},{"category":"מתדולוגיה"},{"category":"מתודולוגיה"},{"category":"ניהול"},{"category":"סטארט אפ"},
-			{"category":"סיפור"},{"category":"סמכות"},{"category":"סנסורינג"},{"category":"עולם סבוך"},{"category":"עורך חזותי"},
-			{"category":"עיצוב"},{"category":"עמוד ראשי"},{"category":"פיתוח ידע"},{"category":"פער רלוונטיות"},{"category":"פרדיגמה"},
-			{"category":"פרוייקטים"},{"category":"פרזי"},{"category":"צוות שילובי"},{"category":"צירופים"},{"category":"צירי ההכשרה"},
-			{"category":"צפת"},{"category":"קאנון"},{"category":"קורסים והכשרות"},{"category":"קטגוריות"},{"category":"קינפין"},
-			{"category":"רחבת הריקודים"},{"category":"רשתות חברתיות"},{"category":"שולחן עגול"},{"category":"שועליות"},
-			{"category":"שיח מומחים"},{"category":"שילוביות"},{"category":"שקף ה-V"},{"category":"תבניות"},{"category":"תהליך הלמידה"},
-			{"category":"תהליכי עבודה"},{"category":"תחומי המכון"},{"category":"תיאוריה"},{"category":"תכניות עבודה"},
-			{"category":"תכנית עבודה"},{"category":"תפיסת הזרז"}]};
-		console.log(categoriesData);
-		var randeredCategories = categories.render(categoriesData);
-		
-		var titleInput = new mw.widgets.TitleInputWidget( {
-			id: "title-input",
-			autofocus: true,
-			placeholder: mw.msg("modal-title-input-placeholder"),
-			indicator: 'required'		
-		} );
-		
-		var namespaceSelector = new mw.widgets.NamespaceInputWidget( { 
-			includeAllValue: "all namespaces"
-		} );
-		
-		var categoriesSelector = new OO.ui.LabelWidget( {
-			label: $( randeredCategories )
-		} );
-		
-		/*var categoriesSelector = new mw.widgets.CategorySelector( {
+		var categoriesSelector = new OO.ui.CapsuleMultiSelectWidget( {
+			id: "categoriesMultiSelector",
 			allowArbitrary: true,
 			icon: "tag",
-			iconTitle: mw.msg("modal-categories-selector-label")
-		} );*/
+			indicator: "down",
+			iconTitle: mw.msg("modal-categories-selector-label"),
+			supportsSimpleLabel: true,
+			menu: {
+				input: {
+					placeholder: mw.msg("modal-categories-placeholder")
+				},
+				filterFromInput: true,
+				items: categoriesData
+			}			
+		} );
 		
-		var templateSelector = new OO.ui.DropdownInputWidget( {
-			options: [
-				{ data: 'empty', label: ' ' },
-				{ data: 'a', label: 'First' },
-				{ data: 'b', label: 'Second'},
-				{ data: 'c', label: 'Third' }
-			]
+		var templateSelector = new mw.widgets.TitleInputWidget( {
+			id: "template-input",
+			placeholder: mw.msg("modal-template-placeholder"),
+			icon: 'search',
+			iconTitle: mw.msg("modal-template-placeholder")
 		} );
 		
 		var fieldset = new OO.ui.FieldsetLayout( {
 			items: [
-				new OO.ui.FieldLayout( titleInput, {
+				new OO.ui.FieldLayout( complexTitleInput, {
 					id: "modal-title-fieldset",
 					label: mw.msg("modal-title-input-label"),
 					classes: ['materialFieldset'],
@@ -145,12 +183,12 @@
 					classes: ['materialFieldset'],
 					align: 'top'
 				} ),
-				new OO.ui.FieldLayout( namespaceSelector, {
+				/*new OO.ui.FieldLayout( namespaceSelector, {
 					id: "modal-namespace-fieldset",
 					label: mw.msg("modal-namespace-selector-label"),
 					classes: ['materialFieldset'],
 					align: 'top'
-				} ),
+				} ),*/
 				new OO.ui.FieldLayout( templateSelector, {
 					id: "modal-template-fieldset",
 					label: mw.msg("modal-template-selector-label"),
@@ -162,11 +200,12 @@
 				
 		var dialogActionButtons = [ {
 			id: "model-create-button",
-			action: 'create',
+			action: 'add',
 			framed: false,				
-			icon: 'templateAdd',
+			icon: 'add',
+			label: mw.msg("modal-create-page-button"),
 			iconTitle: mw.msg("modal-create-page-button"),
-			flags: [ 'primary', 'progressive' ] 
+			flags: [ 'other', 'progressive' ] 
 		},
 		{ 
 			id: "model-close-button",
@@ -178,50 +217,48 @@
 		} ];
 
 		var dialogTitle = mw.msg("modal-create-page-title");
-		var dialogHeight = 550;
-		
+		var dialogHeight = 500;
 		var materialDialog = CreateMaterialDialog( fieldset, dialogActionButtons, dialogTitle, dialogHeight );
-
+				
 		materialDialog.getActionProcess = function ( action ) {
 			var dialog = this;
 
 			if ( action === 'create' ) {
-				return new OO.ui.Process( function () {
-					dialog.close();
+				return new OO.ui.Process( function () {	
+				
+					var titleObj = complexTitleInput.title.getTitle();
+					
+					if( titleObj && !titleObj.exists() )
+					{
+						var selectedCategoriesText = "";
+						var selectedCategories = categoriesSelector.getItemsData();
+						selectedCategories.forEach( function(item) {
+							selectedCategoriesText += "\n" + "[[category:" + item.toString() + "]]";
+						} );
+						
+						var templateTitle = templateSelector.getTitle();
+						var pageTitle = titleObj.toText();
+						loadWikiTextFromPage(api, templateTitle, pageTitle, selectedCategoriesText);
+						mw.notify(mw.msg("created-successfully"));
+						dialog.close();						
+					}
+					else{
+						mw.notify("please enter page title!");
+					}
 				} );
 			} else if ( action === 'close' ) {
-				return new OO.ui.Process( function () {
+				
+				return new OO.ui.Process( function () {					
 					dialog.close();
 				} );
 			}
 			return materialDialog.parent.getActionProcess.call( this, action );
 		};
-		
-		$('#categories-multiselector').select2({
-			placeholder : 'Select all categories ...',
-			//dir: "rtl",
-			//allowClear: true,
-			tags: true,
-			createTag: function (params) {
-				var term = $.trim(params.term);
-
-				if (term === '') {
-				  return null;
-				}
-				
-				return {
-				  id: term,
-				  text: term,
-				  newTag: true // add additional parameters
-				}
-			},
-			data: categoriesData
-		});
-		
-	};
+	};	
 	
-    $( function () {		
-        loadMaterialCreatePage();		
+    $( function () {
+		var api = new mw.Api();
+        loadMaterialCreatePage(api);		
     });
 
 }( mediaWiki, jQuery ) );
