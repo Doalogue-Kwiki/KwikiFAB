@@ -1,0 +1,10 @@
+<!-- Material multi selector -->
+<select id="categories-multiselector" style="width: 100%" multiple="multiple">
+	{{#categories}}
+<<<<<<< HEAD
+		<option value="[[category:{{category}}]]">{{category}}</option>
+=======
+		<option value="{{category}}">{{category}}</option>
+>>>>>>> origin/master
+	{{/categories}}
+</select>
