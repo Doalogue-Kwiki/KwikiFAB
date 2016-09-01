@@ -1,6 +1,6 @@
 {
 	"name": "MaterialCreatePage",
-	"version": "0.2.1",
+	"version": "0.2.3",
 	"author": [
 		"[http://kwiki.co.il Kwiki]",
 		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
@@ -52,11 +52,14 @@
             "messages": [
 				"modal-title-input-placeholder",
 				"modal-title-input-label",
+				"modal-popup-warning-page-exists",
 				"modal-categories-selector-label",
 				"modal-categories-placeholder",
 				"modal-namespace-selector-label",
 				"modal-template-selector-label",
 				"modal-template-placeholder",
+				"modal-popup-warning-template-not-exists",
+				"modal-popup-warning-title-missing",
 				"modal-create-page-button",
 				"modal-create-page-title",
 				"modal-close-button",

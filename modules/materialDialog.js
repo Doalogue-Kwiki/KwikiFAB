@@ -1,9 +1,8 @@
-
 function CreateMaterialDialog( fieldset, dialogActionButtons, dialogTitle, dialogHeight ) {
 	
 	function MaterialDialog( config ) {
 		MaterialDialog.parent.call( this, config );
-		this.broken = false;
+		this.broken = true;
 	}
 	
 	OO.inheritClass( MaterialDialog, OO.ui.ProcessDialog );
@@ -32,10 +31,11 @@ function CreateMaterialDialog( fieldset, dialogActionButtons, dialogTitle, dialo
 		
 	// Create and append a window manager, which opens and closes the window.
 	var windowManager = new OO.ui.WindowManager();
-	$( 'body' ).append( windowManager.$element );
+
 	windowManager.addWindows( [ materialDialog ] );
 	// Open the window!
 	windowManager.openWindow( materialDialog );
+	$( 'body' ).append( windowManager.$element );	
 	
 	return materialDialog;
 };
