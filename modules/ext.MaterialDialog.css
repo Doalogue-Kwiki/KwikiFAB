@@ -1,0 +1,119 @@
+
+/* @noflip */
+.oo-ui-iconElement .oo-ui-iconElement-icon, .oo-ui-iconElement.oo-ui-iconElement-icon {
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    min-width: 24px;
+    width: 1.875em;
+    min-height: 24px;
+    height: 1.875em;
+}
+
+.oo-ui-icon-tag, .mw-ui-icon-tag:before {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons&image=tag&format=rasterized&lang=he&version=7d76bbf4fdbf);
+}
+
+.oo-ui-icon-upload, .mw-ui-icon-upload:before {
+    background-image: url(http://wiki.democratic.co.il/w/load.php?modules=oojs-ui.styles.icons-content&image=upload&format=rasterized&lang=he&version=34c02464e8ef);
+}
+
+.oo-ui-indicator-down {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.indicators&image=down&format=rasterized&lang=he&version=7d76bbf4fdbf);
+}
+
+.oo-ui-icon-close, .mw-ui-icon-close:before {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons&image=close&format=rasterized&lang=en&version=7d76bbf4fdbf) !important;
+}
+
+.oo-ui-icon-code, .mw-ui-icon-code:before {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons&image=code&format=rasterized&lang=he&version=7d76bbf4fdbf);
+}
+
+.oo-ui-indicator-required {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.indicators&image=required&format=rasterized&lang=he&version=7d76bbf4fdbf);
+}
+
+.oo-ui-icon-add, .mw-ui-icon-add:before {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons&image=add&format=rasterized&lang=he&version=7d76bbf4fdbf);
+}
+
+.oo-ui-icon-edit, .mw-ui-icon-edit:before {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons-editing-core&image=edit&variant=progressive&format=rasterized&lang=en&version=f97902b57cd3) !important;
+}
+
+.oo-ui-icon-check, .mw-ui-icon-check:before {
+    background-image: url(http://wiki.democratic.co.il/w/load.php?modules=oojs-ui.styles.icons&image=check&variant=progressive&format=rasterized&lang=he&version=34c02464e8ef);
+}
+
+.oo-ui-indicator-clear {
+    background-image: url(/w/load.php?modules=oojs-ui.styles.indicators&image=clear&format=rasterized&lang=he&version=7d76bbf4fdbf);
+}
+
+.oo-ui-capsuleItemWidget.oo-ui-widget-enabled .oo-ui-buttonElement-button .oo-ui-indicator-clear {
+    position: absolute;
+    top: 0;
+    left: 0.3em;
+    bottom: 0;
+    height: auto;
+}
+
+.oo-ui-window-frame {	
+	box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .23);
+    -webkit-transition: box-shadow .3s;
+    transition: box-shadow .3s;
+}
+
+.materialFieldset span {
+	font-weight: bold;
+	font-size: 16px !important;
+    width: 100%;
+}
+
+.materialDialog [role="combobox"]{
+	width: 100% !important;
+	max-width: 100% !important;
+	overflow-x: hidden !important;
+    overflow-y: scroll !important;
+}
+
+.materialDialog [role="menu"]{
+	width: 100% !important;
+	max-width: 100% !important;
+	overflow-x: hidden !important;
+    overflow-y: scroll !important;
+}
+
+.materialDialog {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	right: 0;
+	padding-right: 20px;
+    padding-left: 20px;
+    padding-top: 5px;
+    -webkit-animation: fadeIn 1s .55s both;
+    animation: fadeIn 1s .55s both;
+}
+
+.oo-ui-windowManager-modal > .oo-ui-dialog.oo-ui-window-active {
+	z-index: 2;
+}
+
+@-webkit-keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

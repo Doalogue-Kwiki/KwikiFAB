@@ -1,17 +1,20 @@
 {
 	"name": "MaterialCreatePage",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"author": [
 		"[http://kwiki.co.il Kwiki]",
 		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
 		"[[mw:user:Yacohen|Yacohen]]"
 	],
 	"url": "doalogue-kwiki/MaterialCreatePage",
-	"descriptionmsg": "MaterialCreatePage-desc",
+	"descriptionmsg": "material-create-page-desc",
 	"license-name": "GPL v2",
 	"type": "other",
 	"AutoloadClasses": {
 		"MaterialCreatePageHooks": "MaterialCreatePage.hooks.php"
+	},
+	"config": {
+		"FABNamespacesAndTempletes": []
 	},
 	"ExtensionMessagesFiles": {
 		"MaterialCreatePageAlias": "MaterialCreatePage.i18n.alias.php"
@@ -27,28 +30,64 @@
 		]
 	},
 	"ResourceModules": {
-		"ext.MaterialCreatePage": {
+		"ext.MaterialDialog": {
 			"dependencies": [
-				"oojs-ui.styles.icons",
-				"mediawiki.api",
-				"mediawiki.widgets",
-				"mediawiki.Title",
-				"ext.MaterialFAB",
-				"mediawiki.api.edit",
-				"mediawiki.api.parse",
-				"mediawiki.notify",
 				"oojs",
 				"oojs-ui",
 				"oojs-ui-core",
-				"oojs-ui-widgets"
+				"oojs-ui-widgets",
+				"oojs-ui.styles.icons",
+                "oojs-ui.styles.icons-editing-core",
+				"mediawiki.widgets"
 			],
 			"scripts": [
-				"modules/materialDialog.js",
-				"modules/ext.MaterialCreatePage.js"                
+				"lib/simply-toast/simply-toast.min.js",
+				"lib/sweetalert/sweetalert.min.js",	
+				"modules/ext.MaterialDialog.js"
 			],
 			"styles": [
-				"modules/ext.MaterialCreatePage.css"
+				"lib/simply-toast/simply-toast.min.css",
+				"lib/sweetalert/sweetalert.min.css",
+				"modules/ext.MaterialDialog.css"
+			]
+		},
+		"ext.DragAndDropUpload": {
+			"dependencies": [
+				"ext.MaterialDialog",
+				"mediawiki.Upload",
+				"mediawiki.Upload.Dialog",
+				"mediawiki.api"
 			],
+			"scripts": [
+				"modules/ext.DragAndDropUpload.js"
+			],
+			"styles": [
+				"modules/ext.DragAndDropUpload.css"
+			],
+			"messages": [
+				"modal-close-button",
+				"redirect-files-list",
+				"uploaded-successfully",
+				"modal-upload-label-button",
+				"upload-files-dialog-title",
+				"modal-popup-warning-file-missing"
+			]			
+		},
+		"ext.MaterialCreatePage": {
+			"dependencies": [
+				"ext.MaterialFAB",
+				"ext.MaterialDialog",				
+				"mediawiki.api",				
+				"mediawiki.Title",
+				"mediawiki.api.edit",
+				"mediawiki.api.parse"				
+			],
+			"scripts": [			
+				"modules/ext.MaterialCreatePage.js"                
+			],
+            "styles": [
+                "modules/ext.MaterialCreatePage.css"
+            ],
             "messages": [
 				"modal-title-input-placeholder",
 				"modal-title-input-label",
@@ -56,16 +95,20 @@
 				"modal-categories-selector-label",
 				"modal-categories-placeholder",
 				"modal-namespace-selector-label",
+				"modal-namespace-template-selector-label",
 				"modal-template-selector-label",
 				"modal-template-placeholder",
 				"modal-popup-warning-template-not-exists",
 				"modal-popup-warning-title-missing",
 				"modal-create-page-button",
-				"modal-create-page-title",
+                "modal-edit-page-button",
 				"modal-close-button",
+				"create-page-redirect-to-edit",
+                "edited-successfully",
+				"modal-ok-button",
 				"created-successfully",
                 "create-toggle-popup",
-                "categories-toggle-popup",
+                "edit-toggle-popup",
                 "files-toggle-popup",
                 "upload-toggle-popup"
             ]			
