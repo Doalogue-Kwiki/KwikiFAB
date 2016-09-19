@@ -3,7 +3,14 @@
  */
 ( function ( mw, $ ) {
 
-	var createMaterialDialog = function ( title, actions, content, mainAction, mainActionFunc, height, windowManager)
+	var createMaterialDialog = function ( title,
+                                          actions,
+                                          content,
+                                          mainAction, 
+                                          mainActionFunc,
+                                          height, 
+                                          windowManager, 
+                                          dialogSize )
 	{
 		function MaterialDialog( config ) {
 			MaterialDialog.parent.call( this, config );
@@ -28,7 +35,11 @@
 		};
 			
 		MaterialDialog.prototype.getBodyHeight = function () {
-			return height;
+            if (height) {
+                return height;                
+            } else {
+                return this.content.$element.outerHeight( true );  
+            }            
 		};
 
 		MaterialDialog.prototype.onDialogKeyDown = function ( e ) {
@@ -48,7 +59,10 @@
 				return new OO.ui.Process( function () {				
 					
 					try {
-                        mainActionFunc(dialog, mainAction, windowManager);						
+                        if (mainActionFunc)
+                        {
+                            mainActionFunc(dialog, mainAction, windowManager);	
+                        }
 					}
 					catch (e) {
 						console.log(e);
@@ -67,19 +81,29 @@
 		};
 		
 		return new MaterialDialog( { 
-			size: "large" 
+            size: dialogSize 
 		} );
 	};
 	
-	var openMaterialDialog = function ( title, actions, content, mainAction, mainActionFunc, height = 450) {
+    var openMaterialDialog = function (  title,
+                                         actions,
+                                         content, 
+                                         mainAction,
+                                         mainActionFunc, 
+                                         height,
+                                         dialogSize = "large" ) {
 
 		if ( $(".oo-ui-windowManager-modal").length < 1) {
-			
-			var windowManager = new OO.ui.WindowManager();
-			
+
+            var windowManager = new OO.ui.WindowManager();
+            
+            // User is currently editing a page using VisualEditor
+            if ( window.ve && ve.init && ve.init.target && ve.init.target.active ) {
+                console.log(" User is currently editing a page using VisualEditor ");
+            }
+            			
 			var materialDialog = 
 				createMaterialDialog( title, actions, content, mainAction, mainActionFunc, height, windowManager );		
-			
 			windowManager.addWindows( [ materialDialog ] );
 			// Open the window!
 			windowManager.openWindow( materialDialog );

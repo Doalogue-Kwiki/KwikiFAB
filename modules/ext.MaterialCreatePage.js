@@ -17,8 +17,7 @@
         return -999;
     }
 
-    function apiCreatePageWithContext(api, pageTitle, content, isNew = true) {        
-
+    function apiCreatePageWithContext(api, pageTitle, content, isNew = true) {
         var textMessage = mw.msg("create-page-redirect-to-edit");
         var titleMessage = mw.msg("created-successfully");
         
@@ -28,23 +27,37 @@
         }
 
         var params = "";
-
+        console.log("pageTitle: ", pageTitle, " content: ", content, " isNew: ", isNew);
+        
         api.postWithEditToken($.extend( {
             action: 'edit',
             title: pageTitle,
             text: content,
             formatversion: '2',
-
+            contentformat: 'text/x-wiki',
+            contentmodel: 'wikitext',
             // Protect against errors and conflicts
             assert: mw.user.isAnon() ? undefined : 'user',
             createonly: isNew
         }, params )).done(function () {
-            swal( {
+            
+            swal({
                 title: titleMessage,
-                text: textMessage,
-                confirmButtonText: mw.msg("modal-ok-button")
-            } ).then(function () {
+                text: textMessage,                
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: mw.msg("modal-edit-page-button"),
+                cancelButtonText: mw.msg("modal-close-button"),
+                confirmButtonClass: 'btn btn-success',
+                cancelButtonClass: 'btn btn-info',
+                buttonsStyling: false
+            }).then( function() {
                 window.location.href = "/w/index.php?title=" + pageTitle + "&veaction=edit";
+            }, function(dismiss) {
+                // dismiss can be 'cancel', 'overlay',
+                // 'close', and 'timer'                
+                console.log("modal closed");             
             } );
 
         } ).fail( function( code, result ) {
@@ -58,44 +71,46 @@
         } );
     };
 
-    function apiMovePage(api, pageTitle, oldTitle, content, isNew = false) {
-        // In edit mode 
-        if (!isNew ) { 
-
-            // Need to move the page before edit the content
-            if ( pageTitle != oldTitle ) {
-                
-                var params = "";                
+    function apiMovePage(api, wikiText, pageTitle, oldTitle, selectedCategoriesText, isNew) {
+        
+        var content = wikiText.concat(selectedCategoriesText);
+        oldTitle = oldTitle.trim().replace('_', ' ');
+        pageTitle = pageTitle.trim();
+        
+        console.log("isNew:", isNew, "pageTitle:", pageTitle, "oldTitle:", oldTitle, "content:", content);
+        
+        // not in edit mode and page title equal to old title.       
+        if( isNew || pageTitle === oldTitle ) {            
+            apiCreatePageWithContext(api, pageTitle, content, isNew);                        
+        } 
+        else {
+            // in edit mode and page title is not equeal to old title.
+            var params = "";
+            console.log("from: ", oldTitle, " to: ", pageTitle);
             
-                api.postWithEditToken( $.extend( {
-                    action: 'move',
-                    from: oldTitle,
-                    to: pageTitle,
-                    noredirect: true,
-                    formatversion: '2',
-                    // Protect against errors and conflicts
-                    assert: mw.user.isAnon() ? undefined : 'user'
-                }, params )).done(function () {
-                    console.log("from: ", oldTitle, " to: ", pageTitle);
-                    apiCreatePageWithContext(api, pageTitle, content, isNew);
-
-                } ).fail( function( code, result ) {
-                    if ( code === "http" ) {
-                        mw.log( "HTTP error: " + result.textStatus ); // result.xhr contains the jqXHR object
-                    } else if ( code === "ok-but-empty" ) {
-                        mw.log( "Got an empty response from the server" );
-                    } else {
-                        mw.log( "API error: " + code );
-                    }
-                } ); 
-            }                   
-        } else {
-            apiCreatePageWithContext(api, pageTitle, content, isNew);   
+            api.postWithEditToken( $.extend( {
+                action: 'move',
+                from: oldTitle,
+                to: pageTitle,
+                noredirect: true,
+                formatversion: '2',
+                // Protect against errors and conflicts
+                assert: mw.user.isAnon() ? undefined : 'user'
+            }, params ) ).done(function () {                
+                apiCreatePageWithContext(api, pageTitle, content, isNew);
+            } ).fail( function( code, result ) {
+                if ( code === "http" ) {
+                    mw.log( "HTTP error: " + result.textStatus ); // result.xhr contains the jqXHR object
+                } else if ( code === "ok-but-empty" ) {
+                    mw.log( "Got an empty response from the server" );
+                } else {
+                    mw.log( "API error: " + code );
+                }
+            } );
         }
     };
     
     function loadWikiTextFromPage(api, templateTitleText, pageTitle, categoriesSelector, isNew = true) {
-
         var wikiText = "";
         var selectedCategoriesText = "";
         var selectedCategories = categoriesSelector.getItemsData();
@@ -111,15 +126,11 @@
                 prop: 'extracts',
                 titles: templateTitleText,
                 utf8: true,
-                explaintext: true,
-                exsectionformat: 'wiki'
+                explaintext: false,
+                exsectionformat: 'plain'
             } ).done(function (res) {                
                 wikiText = res.query.pages[0].extract;
-                console.log("template wikiText: ", wikiText, res);
-            } ).done(function () {                
-                var content = wikiText.concat(selectedCategoriesText);
-                apiMovePage(api, pageTitle, templateTitleText, content, isNew);
-                               
+                apiMovePage(api, wikiText, pageTitle, templateTitleText, selectedCategoriesText, isNew);
             } ).fail( function( code, result ) {
                 if ( code === "http" ) {
                     mw.log( "HTTP error: " + result.textStatus ); // result.xhr contains the jqXHR object
@@ -134,8 +145,7 @@
         }
     }
 
-    function disableAbiltyToClickCreate(enabledCreateClick, input, notifyMessage) {
-        
+    function disableAbiltyToClickCreate(enabledCreateClick, input, notifyMessage) {        
         var mainButton = $("#model-main-button");
         
         if (enabledCreateClick) {
@@ -153,7 +163,6 @@
     };
 
     function isPageTitleVaild(api, title, titleInput) {
-
         if ( title ) {
             api.get( {
                 formatversion: 2,
@@ -254,8 +263,7 @@
         var mainFunction = function (dialog, action, windowManager) {
             var pageTitle = titleInput.getTitle();
 
-            if (pageTitle) {
-                
+            if (pageTitle) {                
                 var isNew = false;
                 
                 if (action === "edit")
@@ -464,8 +472,6 @@
 
     function loadModalElements(api, categoriesData, editTitle, wgFABNamespacesAndTempletes) {
         
-        console.log(editTitle);
-        
         var categoriesSelector = new OO.ui.CapsuleMultiSelectWidget({
             id: "categoriesMultiSelector",
             allowArbitrary: true,
@@ -576,8 +582,7 @@
                                         api);            
         } else {
           
-            var namespaces = mw.config.get('wgFormattedNamespaces');
-            
+            var namespaces = mw.config.get('wgFormattedNamespaces');            
             Object.keys(namespaces).forEach(function(key) {                
                 var option = new OO.ui.MenuOptionWidget( {
                     data: key,
@@ -610,7 +615,6 @@
 
     function loadApiCategoriesData(editTitle, wgFABNamespacesAndTempletes) {
         var api = new mw.Api();
-
         var categoriesData = new Array();
 
         api.get( {
@@ -702,13 +706,6 @@
 
         var wgFABNamespacesAndTempletes = mw.config.get('wgFABNamespacesAndTempletes');
         
-        /*$(document).on("click", "#files_toggle", function (e) {
-            e.preventDefault();
-            var files = mw.config.get('wgFileExtensions');
-
-            console.log(files);
-        });*/
-        
         /////////////////////////////////////////////////////////////////////////
         
         $(document).on("click", "#create_toggle", function (e) {
@@ -782,12 +779,11 @@
             } else {
                 window.location = e.target.href;
             }
-
         });
     };
 
-    $(function () {
-        loadMaterialCreatePage();
+    $(function () { 
+        loadMaterialCreatePage();        
     });
 
 }(mediaWiki, jQuery));

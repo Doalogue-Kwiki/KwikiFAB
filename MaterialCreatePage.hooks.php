@@ -21,6 +21,7 @@ class MaterialCreatePageHooks {
 		
 			$out->addModules( array(
 				'ext.MaterialDialog',
+                'ext.FilesList',
 				'ext.DragAndDropUpload',
 				'ext.MaterialCreatePage'
 			) );

@@ -31,7 +31,8 @@
 	},
 	"ResourceModules": {
 		"ext.MaterialDialog": {
-			"dependencies": [
+            "dependencies": [
+                "ext.visualEditor.core",
 				"oojs",
 				"oojs-ui",
 				"oojs-ui-core",
@@ -40,16 +41,19 @@
                 "oojs-ui.styles.icons-editing-core",
 				"mediawiki.widgets"
 			],
-			"scripts": [
+			"scripts": [                
 				"lib/simply-toast/simply-toast.min.js",
 				"lib/sweetalert/sweetalert.min.js",	
 				"modules/ext.MaterialDialog.js"
 			],
-			"styles": [
+			"styles": [                
 				"lib/simply-toast/simply-toast.min.css",
 				"lib/sweetalert/sweetalert.min.css",
 				"modules/ext.MaterialDialog.css"
-			]
+			],
+            "templates": {
+                "dialog.mustache" : "templates/dialog.mustache"
+            }
 		},
 		"ext.DragAndDropUpload": {
 			"dependencies": [
@@ -63,7 +67,7 @@
 			],
 			"styles": [
 				"modules/ext.DragAndDropUpload.css"
-			],
+			],            
 			"messages": [
 				"modal-close-button",
 				"redirect-files-list",
@@ -73,8 +77,32 @@
 				"modal-popup-warning-file-missing"
 			]			
 		},
+        "ext.FilesList": {
+            "dependencies": [
+                "mediawiki.api"
+            ],
+            "scripts": [
+                "lib/tingle/tingle.js",	
+                "lib/moment/moment.min.js",
+                "lib/DataTables/datatables.min.js",
+                "modules/ext.FilesList.js"
+            ],
+            "styles": [
+                "lib/tingle/tingle.css",
+                "lib/DataTables/datatables.min.css",
+                "lib/DataTables/DataTables-1.10.12/css/dataTables.foundation.min.css",
+                "modules/ext.FilesList.css"
+            ],
+            "messages": [
+                "modal-close-button",
+                "files-toggle-popup"
+            ],
+            "templates": {
+                "data-table.mustache" : "templates/data-table.mustache"
+            }			
+        },
 		"ext.MaterialCreatePage": {
-			"dependencies": [
+			"dependencies": [                
 				"ext.MaterialFAB",
 				"ext.MaterialDialog",				
 				"mediawiki.api",				

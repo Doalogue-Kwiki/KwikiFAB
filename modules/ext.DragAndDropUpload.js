@@ -58,6 +58,9 @@
 			}
 		};
 		
+        var dialogSize = "medium";
+
+        
 		//title, actions, content, mainAction, mainActionFunc, windowManager, height
 		MaterialDialog(
 			mw.msg("upload-files-dialog-title"),
@@ -65,7 +68,8 @@
 			file,
 			'upload',
 			uploadFunction,
-			dialogHeight 
+			dialogHeight,
+            dialogSize
 		);
 		
     }    
