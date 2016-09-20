@@ -18,7 +18,9 @@
 		};
 					
 		OO.inheritClass( MaterialDialog, OO.ui.ProcessDialog );
-		
+
+        MaterialDialog.static.name = 'MaterialDialog';
+        
 		MaterialDialog.static.title = title;
 		
 		MaterialDialog.static.actions = actions;
@@ -79,7 +81,9 @@
 				} );
 			}
 		};
-		
+
+        window.ve.ui.windowFactory.register( MaterialDialog );
+
 		return new MaterialDialog( { 
             size: dialogSize 
 		} );
@@ -93,15 +97,10 @@
                                          height,
                                          dialogSize = "large" ) {
 
-		if ( $(".oo-ui-windowManager-modal").length < 1) {
+        if ( $(".materialDialog").length < 1) {            
 
-            var windowManager = new OO.ui.WindowManager();
-            
-            // User is currently editing a page using VisualEditor
-            if ( window.ve && ve.init && ve.init.target && ve.init.target.active ) {
-                console.log(" User is currently editing a page using VisualEditor ");
-            }
-            			
+            var windowManager = new ve.ui.WindowManager();            
+    
 			var materialDialog = 
 				createMaterialDialog( title, actions, content, mainAction, mainActionFunc, height, windowManager );		
 			windowManager.addWindows( [ materialDialog ] );
@@ -110,6 +109,9 @@
 			
 			$( 'body' ).append( windowManager.$element );
 		}
+        else {
+            console.log("material dialog is allready open");
+        }
 	}
 			
 	window.MaterialDialog = openMaterialDialog;

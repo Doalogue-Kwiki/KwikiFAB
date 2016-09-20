@@ -79,12 +79,15 @@
 		},
         "ext.FilesList": {
             "dependencies": [
+                "ext.MaterialDialog",
                 "mediawiki.api"
             ],
             "scripts": [
                 "lib/tingle/tingle.js",	
                 "lib/moment/moment.min.js",
                 "lib/DataTables/datatables.min.js",
+                "lib/DataTables/Highlight/dataTables.searchHighlight.min.js",
+                "lib/DataTables/Highlight/jquery.highlight.js",
                 "modules/ext.FilesList.js"
             ],
             "styles": [
