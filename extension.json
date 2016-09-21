@@ -113,7 +113,8 @@
 				"mediawiki.api.edit",
 				"mediawiki.api.parse"				
 			],
-			"scripts": [			
+			"scripts": [
+                "lib/loadPageWikiText.js",
 				"modules/ext.MaterialCreatePage.js"                
 			],
             "styles": [

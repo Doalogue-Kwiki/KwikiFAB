@@ -140,7 +140,7 @@
             apiCreatePageWithContext(api, pageTitle, selectedCategoriesText, isNew);
         }
     }
-
+    
     function disableAbiltyToClickCreate(enabledCreateClick, input, notifyMessage) {
         var mainButton = $("#model-main-button");
 
@@ -687,7 +687,7 @@
             var pageNamespaceId = mw.config.get('wgNamespaceNumber');
             var pageCategories = mw.config.get('wgCategories');
 
-
+            
             editTitle = {
                 title: pageTitle,
                 namespaceId: pageNamespaceId,
@@ -695,6 +695,10 @@
                 selectedCategories: pageCategories,
                 pageName: pageName
             };
+
+                    
+            // loadPageWikiText.js
+            LoadWikiText();
 
             loadApiCategoriesData(editTitle, wgFABNamespacesAndTempletes);
         });
@@ -802,13 +806,8 @@
     
     $(function () {
         
-        // In visual editor mode, since length is zero, it evaluates to false
-        if ($('.ve-ui-overlay').length) {
-            loadMaterialFAB(false);             
-        } else {
-            loadMaterialFAB(true);
-            loadMaterialCreatePage();
-        }
+        loadMaterialFAB(true);
+        loadMaterialCreatePage();
 
         $(document).on("ready", "", function(){
             loadMaterialFAB(false);   

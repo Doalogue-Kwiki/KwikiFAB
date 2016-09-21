@@ -24,7 +24,7 @@
 	"created-successfully": "The page was created successfully",
     "edited-successfully": "The page was edited successfully",
 	"create-toggle-popup": "Create Page",    
-    "edit-toggle-popup":"Edit Page",
+    "edit-toggle-popup":"Edit This Page",
     "files-toggle-popup": "File List",
     "upload-toggle-popup": "Upload",
 	"redirect-files-list": "Click OK for redirect the files list",
