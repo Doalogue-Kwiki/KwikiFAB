@@ -9,14 +9,14 @@
 class MaterialCreatePageHooks {
 	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin) {
 		
-		global $wgFABNamespacesAndTempletes;
+        global $wgFABNamespacesAndTemplates;
 		
 		$user = $skin->getUser();
 		
 		// Check if the user is connect
 		if ( !$user->isAnon() ) {
 			$out->addJsConfigVars( array(
-				'wgFABNamespacesAndTempletes' => $wgFABNamespacesAndTempletes
+                'wgFABNamespacesAndTemplates' => $wgFABNamespacesAndTemplates
 			) );
 		
 			$out->addModules( array(

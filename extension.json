@@ -1,6 +1,6 @@
 {
 	"name": "MaterialCreatePage",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"author": [
 		"[http://kwiki.co.il Kwiki]",
 		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
@@ -14,7 +14,7 @@
 		"MaterialCreatePageHooks": "MaterialCreatePage.hooks.php"
 	},
 	"config": {
-		"FABNamespacesAndTempletes": []
+		"FABNamespacesAndTemplates": []
 	},
 	"ExtensionMessagesFiles": {
 		"MaterialCreatePageAlias": "MaterialCreatePage.i18n.alias.php"
@@ -43,12 +43,14 @@
 			],
 			"scripts": [                
 				"lib/simply-toast/simply-toast.min.js",
-				"lib/sweetalert/sweetalert.min.js",	
+				"lib/sweetalert/sweetalert.min.js",
+                "lib/magic-suggest/magic-suggest.min.js",
 				"modules/ext.MaterialDialog.js"
 			],
 			"styles": [                
 				"lib/simply-toast/simply-toast.min.css",
 				"lib/sweetalert/sweetalert.min.css",
+                "lib/magic-suggest/magic-suggest.min.css",
 				"modules/ext.MaterialDialog.css"
 			],
             "templates": {
@@ -114,7 +116,6 @@
 				"mediawiki.api.parse"				
 			],
 			"scripts": [
-                "lib/loadPageWikiText.js",
 				"modules/ext.MaterialCreatePage.js"                
 			],
             "styles": [
@@ -138,6 +139,7 @@
 				"create-page-redirect-to-edit",
                 "edited-successfully",
 				"modal-ok-button",
+                "modal-create-new-red-page",
 				"created-successfully",
                 "create-toggle-popup",
                 "edit-toggle-popup",

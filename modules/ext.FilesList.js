@@ -29,14 +29,14 @@
         });
     };
 
-    function initFilesListTable() {
+    /*function initFilesListTable() {
         var filesListTable = mw.template.get("ext.FilesList", "data-table.mustache");
         var tableData = {
             "table-id": "dataTableId"
         };
         var tableHtmlScript = filesListTable.render(tableData);
         $("#filesListTable").append(tableHtmlScript);
-    };
+    };*/
 
     function showModal() {
 
@@ -48,7 +48,7 @@
                 modal.destroy();
             }
         });
-        
+
         // set content
         modal.setContent('<table id="idt-table" class="row-border hover responsive" cellspacing="0" width="100%"></table>');
 
@@ -56,7 +56,7 @@
         modal.open();
 
     };
-    
+
     function setSortDataTableWithMoment( format, locale ) {
         var types = $.fn.dataTable.ext.type;
 
@@ -87,18 +87,18 @@
             parseInt( moment( d, format, locale, true ).format( 'x' ), 10 );
         };
     };
-    
+
     function apiDeleteFile(api, fileTitle, fileToken) {
-        
+
         console.log(fileTitle, fileToken);
-        
+
         api.get({
             formatversion: 2,
             action: 'delete',
             title: fileTitle,
             token: fileToken          
         }).done(function (res) {
-           
+
         }).fail(function (code, result) {
             if (code === "http") {
                 mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
@@ -109,7 +109,7 @@
             }
         });
     };
-    
+
     function apiDeleteFileWithToken(api, fileTitle) {
         /*var fileToken = "";        
         api.get({
@@ -129,9 +129,9 @@
                 mw.log("API error: " + code);
             }
         });*/
-        
+
         var params = "";
-        
+
         api.postWithEditToken($.extend({
             action: 'delete',
             title: fileTitle,            
@@ -152,11 +152,11 @@
                 mw.log("API error: " + code);
             }
         });
-        
+
     };
-    
+
     function loadFilesLists(api, filesData) {
-        
+
         var tableData = [];
         /* 
            var path = mw.config.get( 'wgScriptPath' );
@@ -176,13 +176,13 @@
                 '<a href="/w/index.php?title=user:'+item.user+'" title="'+item.user+'">'+item.user+'</a>',
                 dateTime.format("DD/MM/YY HH:mm"),
                 '<a href="#" class="deleteFileBtn" title="'+ fileTitle +'">'+
-                    '<i class="fa fa-trash"></i>'+
+                '<i class="fa fa-trash"></i>'+
                 '</a>'
                 //'<a href="/w/index.php?title='+item.title+'&action=delete" title="'+item.title+'">'+
                 //'<i class="fa fa-trash" aria-hidden="true"></i></a>'
             ]);
         });
-        
+
         /*var dialogActionButtons = [
             {
                 id: "model-close-button",
@@ -213,12 +213,12 @@
             0,
             dialogSize
         );
-       
+
         initFilesListTable();
         */
 
         showModal();
-        
+
         setSortDataTableWithMoment( "DD/MM/YY HH:mm" );
 
         var dataTable = $('#idt-table').DataTable( {
@@ -245,8 +245,8 @@
             },
             order: [[ 4, "desc" ]],
             paging: false,
-            deferRender: true,
-            scrollCollapse: true,
+            deferRender: true,           
+            scrollCollapse: false,            
             scroller: true,
             responsive: true,
             autoWidth: false,
@@ -281,7 +281,7 @@
                 }
             ]
         } );
-        
+
         $('#idt-table tbody').on('click', 'a.deleteFileBtn', function (e) {            
             var item = $(this)[0];
             var fileTitle = item.title;
@@ -297,16 +297,16 @@
                 cancelButtonColor: '#3085d6',
                 cancelButtonText: 'בטל'                
             } ).then(function () {                
-                    dataTable.row(fileRow).remove().draw();
-                    apiDeleteFileWithToken(api, fileTitle);
-                }, function (dismiss) {
+                dataTable.row(fileRow).remove().draw();
+                apiDeleteFileWithToken(api, fileTitle);
+            }, function (dismiss) {
                 // dismiss can be 'cancel', 'overlay',
                 // 'close', and 'timer' 
-                } );
-            
+            } );
+
             return false;
         });
-        
+
         dataTable.on( 'draw', function () {
             var body = $( dataTable.table().body() );
             body.unhighlight();
