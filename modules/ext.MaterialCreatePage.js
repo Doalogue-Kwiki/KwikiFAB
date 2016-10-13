@@ -2,9 +2,16 @@
  * JavaScript for MaterialCreatePage Menu
  */
 (function (mw, $) {
-
+    
     var isNewTitleVaild = true;
     var isTemplateVaild = true;
+
+    var api = new mw.Api();
+    var categoriesData = new Array();
+    loadApiCategoriesData();
+    
+
+    var categoriesSelector;
 
     function getKey(array, value) {
         for (var key in array) {
@@ -17,7 +24,7 @@
         return -999;
     }
 
-    function apiCreatePageWithContext(api, pageTitle, content, isNew = true) {
+    var apiCreatePageWithContext = function(pageTitle, content, isNew = true) {
         var textMessage = mw.msg("create-page-redirect-to-edit");
         var titleMessage = mw.msg("created-successfully");
 
@@ -27,7 +34,7 @@
         }
 
         var params = "";
-        
+
         api.postWithEditToken($.extend({
             action: 'edit',
             title: pageTitle,
@@ -69,19 +76,19 @@
         });
     };
 
-    function apiMovePage(api, wikiText, pageTitle, oldTitle, selectedCategoriesText, isNew) {
+    function apiMovePage(wikiText, pageTitle, oldTitle, selectedCategoriesText, isNew) {
 
         var content = wikiText.concat(selectedCategoriesText);
-        oldTitle = oldTitle.trim().replace('_', ' ');
+        oldTitle = oldTitle.trim().replace(/_/g, ' ');
         pageTitle = pageTitle.trim();
 
         // not in edit mode and page title equal to old title.       
         if (isNew || pageTitle === oldTitle) {
-            apiCreatePageWithContext(api, pageTitle, content, isNew);
+            apiCreatePageWithContext( pageTitle, content, isNew);
         } else {
             // in edit mode and page title is not equeal to old title.
             var params = "";
-            
+
             api.postWithEditToken($.extend({
                 action: 'move',
                 from: oldTitle,
@@ -91,7 +98,7 @@
                 // Protect against errors and conflicts
                 assert: mw.user.isAnon() ? undefined : 'user'
             }, params)).done(function () {
-                apiCreatePageWithContext(api, pageTitle, content, isNew);
+                apiCreatePageWithContext( pageTitle, content, isNew);
             }).fail(function (code, result) {
                 if (code === "http") {
                     mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
@@ -114,24 +121,25 @@
         //var findCatsRE = new RegExp('\[\[((category|קטגוריה):[^|]+)\]\]', 'i');
 
         for ( index in categories ) {
-            var category = categories[index].replace('_', ' ');
-            var findCatRE = new RegExp('(\\[\\[(.*:' + category + ')\\]\\])', 'i');            
+            var category = categories[index].replace(/_/g, ' ');
+            var findCatRE = new RegExp('(\\[\\[(.*:' + category + ')\\]\\])', 'g'); 
             wikiText = wikiText.replace(findCatRE, replaceByBlanks);
             wikiText = wikiText.trim();
         }  
-
         return wikiText;
     };
 
-    function loadWikiTextFromPage(api, templateTitleText, pageTitle, categoriesSelector, isNew = true) {
+    function loadWikiTextFromPage(templateTitleText, pageTitle, isNew = true) {
         var wikiText = "";
         var selectedCategoriesText = "";
-        var selectedCategories = categoriesSelector.getItemsData();
-
+        var selectedCategories = categoriesSelector.getValue();
+        
+        console.log(selectedCategories);
+        
         selectedCategories.forEach(function (item) {
             selectedCategoriesText += "\n" + "[[category:" + item.toString() + "]]";
         });
-        
+
         if (templateTitleText) {            
             api.get({
                 formatversion: 2,
@@ -150,8 +158,8 @@
 
                 // Wiki Text Without Categories.
                 var wikiText = removeCategoriesFromWikiText(templateWikiText, templateCategories);                
-                apiMovePage(api, wikiText, pageTitle, templateTitleText, selectedCategoriesText, isNew);
-                
+                apiMovePage( wikiText, pageTitle, templateTitleText, selectedCategoriesText, isNew);
+
             }).fail(function (code, result) {
                 if (code === "http") {
                     mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
@@ -162,10 +170,10 @@
                 }
             });  
         } else {
-            apiCreatePageWithContext(api, pageTitle, selectedCategoriesText, isNew);
+            apiCreatePageWithContext(pageTitle, selectedCategoriesText, isNew);
         }
     }
-    
+
     function disableAbiltyToClickCreate(enabledCreateClick, input, notifyMessage, isNotifyDisplay) {
         var mainButton = $("#model-main-button");
 
@@ -186,7 +194,7 @@
         }
     };
 
-    function isPageTitleVaild(api, title, titleInput, isNotifyDisplay = false) {
+    function isPageTitleVaild(title, titleInput, isNotifyDisplay = false) {
         if (title) {
             api.get({
                 formatversion: 2,
@@ -215,7 +223,7 @@
         }
     };
 
-    function isTemplateTitleVaild(api, title, templateSelector, isNotifyDisplay = false) {
+    function isTemplateTitleVaild(title, templateSelector, isNotifyDisplay = false) {
         var notifyMessage = mw.msg("modal-popup-warning-template-not-exists");
 
         if (title) {
@@ -245,11 +253,10 @@
     function loadCreatePageCombinedModal( actionMain,
                                           dialogTitle,
                                           namespacesTemplatesSelector,
-                                          categoriesSelector,
+                                          categoriesInputSelector,
                                           titleInput,
                                           dialogActionButtons,
-                                          editTitle,
-                                          api ) {
+                                          editTitle ) {
 
         var fieldset = new OO.ui.FieldsetLayout();
 
@@ -260,7 +267,7 @@
                 var splitedData = data.split('#');
                 var namespace = splitedData[0];
                 var template = splitedData[1];
-                loadSelectedTemplateCategories(api, template, categoriesSelector);
+                loadSelectedTemplateCategories(template);
                 titleInput.setNamespace(namespace);
             });
 
@@ -273,7 +280,7 @@
                 } )
             ] );
         }
-        
+
         fieldset.addItems( [                
             new OO.ui.FieldLayout(titleInput, {
                 id: "modal-title-fieldset",
@@ -281,14 +288,14 @@
                 classes: ['materialFieldset'],
                 align: 'top'
             }),
-            new OO.ui.FieldLayout(categoriesSelector, {
+            new OO.ui.FieldLayout(categoriesInputSelector, {
                 id: "modal-categories-fieldset",
                 label: mw.msg("modal-categories-selector-label"),
                 classes: ['materialFieldset'],
                 align: 'top'
             })
         ] );
-        
+
         var dialogHeight = 450;
 
         var mainFunction = function (dialog, action, windowManager) {
@@ -298,15 +305,13 @@
                 var isNew = false;
 
                 if (action === "edit") {
-                    loadWikiTextFromPage(api,
-                                         editTitle.pageName,
-                                         pageTitle.toText(),
-                                         categoriesSelector,
-                                         isNew);
+                    loadWikiTextFromPage( editTitle.pageName,
+                                         pageTitle.toText(),                                         
+                                         isNew );
                     dialog.close();
                     windowManager.destroy();
                 } else {
-                    isPageTitleVaild(api, pageTitle.toText(), titleInput, true);
+                    isPageTitleVaild(pageTitle.toText(), titleInput, true);
 
                     if (isNewTitleVaild) {
                         var namespaceTemplateData = namespacesTemplatesSelector.getValue();
@@ -315,15 +320,13 @@
                         var templateTitleText = splitedData[1];
                         titleInput.setNamespace(selectedNamespace);
 
-                        isTemplateTitleVaild(api, templateTitleText, namespacesTemplatesSelector, true);
+                        isTemplateTitleVaild(templateTitleText, namespacesTemplatesSelector, true);
 
                         if (isTemplateVaild) {
                             isNew = true;
-                            loadWikiTextFromPage(api,
-                                                 templateTitleText,
-                                                 pageTitle.toText(),
-                                                 categoriesSelector,
-                                                 isNew);
+                            loadWikiTextFromPage( templateTitleText,
+                                                 pageTitle.toText(),                                                 
+                                                 isNew );
                             dialog.close();
                             windowManager.destroy();
                         }
@@ -346,7 +349,7 @@
 
     };
 
-    function loadSelectedTemplateCategories(api, templateTitle, categoriesSelector) {
+    function loadSelectedTemplateCategories(templateTitle) {
         var selectedCategories = [];
         if (templateTitle) {
             api.get( {
@@ -357,6 +360,7 @@
                 //list: 'allcategories',
                 utf8: true
             } ).done(function (res) {
+                console.log(res);
                 var categories = res.parse.categories;
                 categories.map(function (item) {
                     // add only categories that are not selected.
@@ -364,7 +368,7 @@
                         selectedCategories.push(item.category);
                     }
                 });           
-                categoriesSelector.setItemsFromData(selectedCategories);                    
+                categoriesSelector.setValue(selectedCategories);                    
             } ).fail(function (code, result) {
                 if (code === "http") {
                     mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
@@ -375,23 +379,22 @@
                 }
             } );
         } else {
-            categoriesSelector.setItemsFromData(selectedCategories);    
+            categoriesSelector.setValue(selectedCategories);    
         }
     };
 
     function loadCreatePageModal( actionMain,
-                                  dialogTitle,
-                                  namespaceSelector,
-                                  categoriesSelector,
-                                  titleInput,
-                                  dialogActionButtons,
-                                  editTitle,
-                                  api ) {
-        
+                                   dialogTitle,
+                                   namespaceSelector,
+                                   categoriesInputSelector,
+                                   titleInput,
+                                   dialogActionButtons,
+                                   editTitle ) {
+
         var templateSelector = "";
 
         var fieldset = new OO.ui.FieldsetLayout();
-        
+
         // In create mode
         if (!editTitle.isEdit)
         {
@@ -403,18 +406,18 @@
             });
 
             templateSelector.on("change", function (templateTitle) {
-                
-                loadSelectedTemplateCategories(api, templateTitle, categoriesSelector);
-                
+
+                loadSelectedTemplateCategories(templateTitle);
+
                 var pageTitle = titleInput.getTitle();
-                
+
                 if ( pageTitle ) {
                     pageTitle = pageTitle.toText();
                 }
-                
-                isPageTitleVaild(api, pageTitle, titleInput, false);
+
+                isPageTitleVaild( pageTitle, titleInput, false );
             });
-            
+
             fieldset.addItems( [
                 new OO.ui.FieldLayout(templateSelector, {
                     id: "modal-template-fieldset",
@@ -438,14 +441,14 @@
                 classes: ['materialFieldset'],
                 align: 'top'
             } ),
-            new OO.ui.FieldLayout(categoriesSelector, {
+            new OO.ui.FieldLayout(categoriesInputSelector, {
                 id: "modal-categories-fieldset",
                 label: mw.msg("modal-categories-selector-label"),
                 classes: ['materialFieldset'],
                 align: 'top'
             } )
         ] );
-        
+
         var mainFunction = function (dialog, action, windowManager) {
             var pageTitle = titleInput.getTitle();
 
@@ -453,45 +456,40 @@
                 var isNew = false;
 
                 if (action === "edit") {
-                    loadWikiTextFromPage(api,
-                                         editTitle.pageName,
-                                         pageTitle.toText(),
-                                         categoriesSelector,
+                    loadWikiTextFromPage(editTitle.pageName,
+                                         pageTitle.toText(),                                         
                                          isNew);
                     dialog.close();
                     windowManager.destroy();
                 } else {
 
-                    isPageTitleVaild(api, pageTitle.toText(), titleInput, true);
+                    isPageTitleVaild(pageTitle.toText(), titleInput, true);
                     var templateTitleText = "";
-                    
+
                     if (isNewTitleVaild) {
-                        
+
                         // In Create mode
                         if (templateSelector)
                         {
                             templateTitleText = templateSelector.getTitle();
                         }
-                        
+
                         if (templateTitleText) {                            
-                            isTemplateTitleVaild(api, templateTitleText.toText(), templateSelector, true);
+                            isTemplateTitleVaild( templateTitleText.toText(), templateSelector, true);
 
                             if (isTemplateVaild) {
                                 isNew = true;
-                                loadWikiTextFromPage(api,
-                                                     templateTitleText.toText(),
-                                                     pageTitle.toText(),
-                                                     categoriesSelector,
-                                                     isNew);
+                                loadWikiTextFromPage(
+                                    templateTitleText.toText(),
+                                    pageTitle.toText(),                                                     
+                                    isNew);
                                 dialog.close();
                                 windowManager.destroy();
                             }
                         } else {
                             isNew = true;
-                            loadWikiTextFromPage(api,
-                                                 "",
-                                                 pageTitle.toText(),
-                                                 categoriesSelector,
+                            loadWikiTextFromPage("",
+                                                 pageTitle.toText(),                                                 
                                                  isNew);
                             dialog.close();
                             windowManager.destroy();
@@ -504,7 +502,7 @@
         };
 
         var dialogHeight = 500;
-        
+
         //title, actions, content, mainAction, mainActionFunc, windowManager, height
         MaterialDialog(
             dialogTitle,
@@ -516,23 +514,12 @@
         );
     };
 
-    function loadModalElements(api, categoriesData, editTitle, wgFABNamespacesAndTemplates) {
+    function loadModalElements(editTitle, wgFABNamespacesAndTemplates) {
 
-        var categoriesSelector = new OO.ui.CapsuleMultiSelectWidget({
-            id: "categoriesMultiSelector",
-            allowArbitrary: true,
-            icon: "tag",
-            indicator: "down",
-            iconTitle: mw.msg("modal-categories-selector-label"),
-            supportsSimpleLabel: true,
-            menu: {
-                input: {
-                    placeholder: mw.msg("modal-categories-placeholder")
-                },
-                filterFromInput: true,
-                items: categoriesData
-            }
-        });
+        var categoriesInputSelector =  new OO.ui.LabelWidget( {            
+            id: "categoriesSelector",
+            label: $( '<input id="categoriesSelector" type="text">' )
+        } );
 
         var titleInput = new mw.widgets.TitleInputWidget({
             id: "title-input",
@@ -544,7 +531,7 @@
             namespace: editTitle.namespaceId,
             placeholder: mw.msg("modal-title-input-placeholder"),
             indicator: 'required'
-        });
+        } );
 
         var dialogTitle = mw.msg("create-toggle-popup");
         var actionMainButtonLabel = mw.msg("modal-create-page-button");
@@ -557,7 +544,6 @@
             actionMainButtonLabel = mw.msg("modal-edit-page-button");
             actionMain = "edit";
             actionMainIcon = "edit";
-            categoriesSelector.setItemsFromData(editTitle.selectedCategories);
         }
 
         var dialogActionButtons = [
@@ -615,11 +601,10 @@
             loadCreatePageCombinedModal(actionMain,
                                         dialogTitle,
                                         namespaceSelector,
-                                        categoriesSelector,
+                                        categoriesInputSelector,
                                         titleInput,
                                         dialogActionButtons,
-                                        editTitle,
-                                        api);
+                                        editTitle);
         } else {
 
             var namespaces = mw.config.get('wgFormattedNamespaces');
@@ -640,25 +625,36 @@
             if (selectedItem) {
                 namespaceSelector.setValue(selectedItem);
             }
-            
+
             namespaceSelector.on("change", function (namespace) {                
                 titleInput.setNamespace(namespace);                
             });
-            
+
             loadCreatePageModal(actionMain,
                                 dialogTitle,
                                 namespaceSelector,
-                                categoriesSelector,
+                                categoriesInputSelector,
                                 titleInput,
                                 dialogActionButtons,
-                                editTitle,
-                                api);
+                                editTitle);
+
         }
+
+        categoriesSelector = $('#categoriesSelector').magicSuggest( {        
+            sortOrder: 'name',
+            data: categoriesData,
+            value: editTitle.selectedCategories,
+            noSuggestionText: "",
+            placeholder: mw.msg("modal-categories-placeholder"),
+            toggleOnClick: true,
+            strictSuggest: true,
+            maxDropHeight: 150,
+            useCommaKey: false,
+            selectionStacked: true            
+        } );
     }
 
-    function loadApiCategoriesData(editTitle, wgFABNamespacesAndTemplates) {
-        var api = new mw.Api();
-        var categoriesData = new Array();
+    function loadApiCategoriesData() {
 
         api.get({
             formatversion: 2,
@@ -666,18 +662,14 @@
             prop: 'categories',
             aclimit: 5000,
             list: 'allcategories'
-        }).done(function (res) {
+        }).done(function (res) {            
             var categories = res.query.allcategories;
             categories.map(function (item) {
-                categoriesData.push(
-                    new OO.ui.MenuOptionWidget({
-                        data: item.category,
-                        label: item.category,
-                    })
-                );
+                categoriesData.push( {
+                    id: item.category,
+                    name: item.category
+                } );
             });
-
-            loadModalElements(api, categoriesData, editTitle, wgFABNamespacesAndTemplates);
 
         }).fail(function (code, result) {
             if (code === "http") {
@@ -693,7 +685,7 @@
     function loadMaterialCreatePage() {
 
         var editTitle = {};
-        
+
         var wgFABNamespacesAndTemplates = mw.config.get('wgFABNamespacesAndTemplates');
 
         /////////////////////////////////////////////////////////////////////////
@@ -707,7 +699,7 @@
             };
 
             e.preventDefault();
-            loadApiCategoriesData(editTitle, wgFABNamespacesAndTemplates);
+            loadModalElements(editTitle, wgFABNamespacesAndTemplates);
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -720,7 +712,7 @@
             var pageName = mw.config.get('wgPageName');
             var pageNamespaceId = mw.config.get('wgNamespaceNumber');
             var pageCategories = mw.config.get('wgCategories');
-            
+
             editTitle = {
                 title: pageTitle,
                 namespaceId: pageNamespaceId,
@@ -729,7 +721,7 @@
                 pageName: pageName
             };
 
-            loadApiCategoriesData(editTitle, wgFABNamespacesAndTemplates);
+            loadModalElements(editTitle, wgFABNamespacesAndTemplates);
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -746,7 +738,7 @@
                 cancelButtonText: mw.msg("modal-close-button"),
                 buttonsStyling: true
             } ).then(function () {
-                
+
                 var splitedFirst = e.currentTarget.title.split('(');
                 var wgNamespaceIds = mw.config.get('wgNamespaceIds');
                 var createdNamespaceId = 0;
@@ -754,7 +746,7 @@
 
                 if (createdTitle.includes(":")) {
                     var splitedSec = splitedFirst[0].split(':');
-                    var namespace = splitedSec[0].trim().replace(' ', '_');
+                    var namespace = splitedSec[0].trim().replace(/ /g, '_');
 
                     createdNamespaceId = getKey(wgNamespaceIds, namespace);
                     createdTitle = splitedSec[1].trim();
@@ -777,13 +769,13 @@
                     });
 
                     if (isNamespaceExist) {
-                        loadApiCategoriesData(editTitle, wgFABNamespacesAndTemplates);
+                        loadModalElements(editTitle, wgFABNamespacesAndTemplates);
                     } else {
                         window.location = e.target.href;
                     }
 
                 } else {
-                    loadApiCategoriesData(editTitle, wgFABNamespacesAndTemplates);
+                    loadModalElements(editTitle, wgFABNamespacesAndTemplates);
                 }
             }, function (dismiss) {
                 // dismiss can be 'cancel', 'overlay',
@@ -794,7 +786,7 @@
     };
 
     function loadMaterialFAB(isEnabled = true) {
-        
+
         var menu = mw.template.get("ext.MaterialFAB", "menu.mustache");
         var disabledBtnColor = "#cacaca";
 
@@ -847,10 +839,13 @@
 
         $("body").append(randeredMenu);   
     }
-    
+
     $(function () {        
-        loadMaterialFAB(true);
+        loadMaterialFAB(true);        
         loadMaterialCreatePage();        
     });
+    
+    window.EditOrCreatePage = apiCreatePageWithContext;
+    
 
 }(mediaWiki, jQuery));

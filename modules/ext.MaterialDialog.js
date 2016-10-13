@@ -112,8 +112,40 @@
         else {
             console.log("material dialog is allready open");
         }
-	}
-			
+	};
+    
+    var showModal = function ( content, cssClass ) {
+
+        // instanciate new modal
+        var modal = new tingle.modal({
+            footer: false,
+            cssClass: ( cssClass ? [ cssClass ] : [] ),
+            onClose: function () {
+                modal.destroy();
+            }
+        });
+        
+        // set content
+        modal.setContent( content );
+
+        // open modal
+        modal.open();
+
+    };
+    
+    var addFAB = function ( buttonsMenuData, toClass ) {
+        
+        var mainFAB = mw.template.get("ext.MaterialFAB", "menu.mustache");
+        
+        var randeredFAB = mainFAB.render(buttonsMenuData);
+        
+        $(toClass).append(randeredFAB);  
+    }
+    
+    window.MaterialAddFAB = addFAB;
+    
+    window.MaterialModal = showModal;
+    
 	window.MaterialDialog = openMaterialDialog;
 	
 }( mediaWiki, jQuery ) );

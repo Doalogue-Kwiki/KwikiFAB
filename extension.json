@@ -32,6 +32,7 @@
 	"ResourceModules": {
 		"ext.MaterialDialog": {
             "dependencies": [
+                "ext.MaterialFAB",
                 "ext.visualEditor.core",
 				"oojs",
 				"oojs-ui",
@@ -45,55 +46,36 @@
 				"lib/simply-toast/simply-toast.min.js",
 				"lib/sweetalert/sweetalert.min.js",
                 "lib/magic-suggest/magic-suggest.min.js",
+                "lib/tingle/tingle.js",
+                "lib/icheck/icheck.min.js",
+                "lib/underscore/underscore.min.js",
 				"modules/ext.MaterialDialog.js"
 			],
 			"styles": [                
 				"lib/simply-toast/simply-toast.min.css",
 				"lib/sweetalert/sweetalert.min.css",
                 "lib/magic-suggest/magic-suggest.min.css",
+                "lib/tingle/tingle.css",
+                "lib/icheck/skins/square/blue.css",
 				"modules/ext.MaterialDialog.css"
 			],
             "templates": {
                 "dialog.mustache" : "templates/dialog.mustache"
             }
 		},
-		"ext.DragAndDropUpload": {
-			"dependencies": [
-				"ext.MaterialDialog",
-				"mediawiki.Upload",
-				"mediawiki.Upload.Dialog",
-				"mediawiki.api"
-			],
-			"scripts": [
-				"modules/ext.DragAndDropUpload.js"
-			],
-			"styles": [
-				"modules/ext.DragAndDropUpload.css"
-			],            
-			"messages": [
-				"modal-close-button",
-				"redirect-files-list",
-				"uploaded-successfully",
-				"modal-upload-label-button",
-				"upload-files-dialog-title",
-				"modal-popup-warning-file-missing"
-			]			
-		},
         "ext.FilesList": {
             "dependencies": [
-                "ext.MaterialDialog",
+                "ext.MaterialDialog",                
                 "mediawiki.api"
             ],
-            "scripts": [
-                "lib/tingle/tingle.js",	
+            "scripts": [                	
                 "lib/moment/moment.min.js",
                 "lib/DataTables/datatables.min.js",
                 "lib/DataTables/Highlight/dataTables.searchHighlight.min.js",
                 "lib/DataTables/Highlight/jquery.highlight.js",
                 "modules/ext.FilesList.js"
             ],
-            "styles": [
-                "lib/tingle/tingle.css",
+            "styles": [                
                 "lib/DataTables/datatables.min.css",
                 "lib/DataTables/DataTables-1.10.12/css/dataTables.foundation.min.css",
                 "modules/ext.FilesList.css"
@@ -106,9 +88,35 @@
                 "data-table.mustache" : "templates/data-table.mustache"
             }			
         },
+        "ext.DragAndDropUpload": {
+            "dependencies": [
+                "ext.MaterialDialog",
+                "ext.FilesList",
+                "mediawiki.Upload",
+                "mediawiki.Upload.Dialog"
+            ],
+            "scripts": [
+                "modules/ext.DragAndDropUpload.js",
+                "lib/dropify/js/dropify.min.js"
+            ],
+            "styles": [
+                "modules/ext.DragAndDropUpload.css",
+                "lib/dropify/css/dropify.min.css"
+            ],            
+            "messages": [
+                "modal-close-button",
+                "redirect-files-list",
+                "uploaded-successfully",
+                "modal-upload-label-button",
+                "upload-files-dialog-title",
+                "modal-popup-warning-file-missing"
+            ],
+            "templates": {
+                "upload.mustache" : "templates/upload.mustache"
+            }		
+        },
 		"ext.MaterialCreatePage": {
-			"dependencies": [                
-				"ext.MaterialFAB",
+			"dependencies": [
 				"ext.MaterialDialog",				
 				"mediawiki.api",				
 				"mediawiki.Title",
@@ -154,4 +162,4 @@
 	},
 	"SpecialPages": {},
 	"manifest_version": 1
-}
+} 
