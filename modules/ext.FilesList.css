@@ -24,7 +24,7 @@ div.dataTables_filter input {
 }
 
 .fileUsage {
-    text-decoration: underline;
+   /* text-decoration: underline; */
 }
 
 /* @noflip */

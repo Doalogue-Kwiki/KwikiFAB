@@ -87,7 +87,7 @@
     function apiDeleteFileWithToken( fileTitle ) {
         
         var params = "";
-
+        var modalMsg = '[' + fileTitle + ']' + mw.msg("modal-delete-message");
         api.postWithEditToken($.extend({
             action: 'delete',
             title: fileTitle,
@@ -96,8 +96,8 @@
             assert: mw.user.isAnon() ? undefined : 'user'
         }, params)).done(function () {
             swal(
-                'נמחק!',
-                '[' + fileTitle + ']' + ' נמחק בהצלחה! '
+                mw.msg("modal-delete-title"),
+                modalMsg
             );
         }).fail(function (code, result) {
             if (code === "http") {
@@ -144,8 +144,8 @@
     function setDataTableData(allfilesData, filesUsageData) {
         
         var tableData = [];
-        var linkTitle = "לחץ לצפייה";
-        var fileLinkTitle = "לחץ לעמוד הקובץ";
+        var linkTitle = mw.msg("modal-click-to-watch-the-file");
+        var fileLinkTitle = mw.msg("modal-click-to-the-file-page");
         var regex = new RegExp('_', 'g');
         var currentPageTitle = mw.config.get('wgTitle'); 
         
@@ -164,7 +164,7 @@
                 _.each( searchFileUsage.fileusage, function (item) {                    
                     var pageTitle = item.title;
                     isFileChecked = (currentPageTitle == pageTitle);
-                    fileUsageLinks += '<a href="/'+ pageTitle + '" class="fileUsage" >'+ pageTitle + '</a></br>';
+                    fileUsageLinks += '<a href="/'+ pageTitle + '"> '+ pageTitle + '* </a>';
                 } );
             }
 
@@ -291,22 +291,22 @@
             data: tableData,
             dom: 'frti',
             language: {
-                processing: "מעבד...",
-                lengthMenu: "הצג _MENU_ פריטים",
-                zeroRecords: "לא נמצאו רשומות מתאימות",
-                emptyTable: "לא נמצאו רשומות מתאימות",
-                info: "_START_ עד _END_ מתוך _TOTAL_ רשומות",
-                infoEmpty: "0 עד 0 מתוך 0 רשומות",
-                infoFiltered: "(מסונן מסך _MAX_  רשומות)",
-                infoPostFix: "",
+                processing: mw.msg("processing"),
+                lengthMenu: mw.msg("lengthMenu"),
+                zeroRecords: mw.msg("zeroRecords"),
+                emptyTable: mw.msg("emptyTable"),
+                info: mw.msg("info"),
+                infoEmpty: mw.msg("infoEmpty"),
+                infoFiltered: mw.msg("infoFiltered"),
+                infoPostFix: mw.msg("infoPostFix"),
                 search: "_INPUT_",
-                searchPlaceholder: "חפש...",
-                url: "",
+                searchPlaceholder: mw.msg("searchPlaceholder"),
+                url: mw.msg("url"),
                 paginate: {
-                    first: "ראשון",
-                    previous: "קודם",
-                    next: "הבא",
-                    last: "אחרון"
+                    first: mw.msg("paginate-first"),
+                    previous: mw.msg("paginate-previous"),
+                    next: mw.msg("paginate-next"),
+                    last: mw.msg("paginate-last")
                 }
             },
             order: [[5, "desc"]],
@@ -319,28 +319,28 @@
             searchHighlight: true,
             columns: [                
                 {
-                    title: "תמונה",
+                    title: mw.msg("title-image"),
                     orderable: false,
                     class: "all center-col"
                 },
                 {
-                    title: "שם",
+                    title: mw.msg("title-name"),
                     class: "all"
                 },
                 {
-                    title: "תיאור",
+                    title: mw.msg("title-description"),
                     class: "desktop"
                 },
                 {
-                    title: "שימוש בדפים",
-                    class: "desktop center-col"
+                    title: mw.msg("title-file-usage"),
+                    class: "desktop fileUsage center-col"
                 },
                 {
-                    title: "משתמש",
+                    title: mw.msg("title-user"),
                     class: "all center-col"
                 },
                 {
-                    title: "תאריך",
+                    title: mw.msg("title-date"),
                     class: "all center-col"
                 },
                 {
@@ -389,7 +389,7 @@
             "main-button": [
                 {                    
                     "bg-color": "#cacaca",
-                    "label": "הוסף קבצים לדף",
+                    "label": mw.msg("modal-add-files-page"),
                     "resting-id": "attach_file_toggle",
                     "resting-class-icon": "material-icons",
                     "resting-icon": "attach_file",
@@ -408,14 +408,14 @@
             var fileRow = $(this).parents('tr');
 
             swal( {
-                title: "האם למחוק את הקובץ ?",
+                title: mw.msg("modal-if-delete-file"),
                 text: fileTitle,
                 type: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                confirmButtonText: 'מחק',
+                confirmButtonText: mw.msg("modal-delete-button"),
                 cancelButtonColor: '#3085d6',
-                cancelButtonText: 'בטל'
+                cancelButtonText: mw.msg("modal-cancel-button")
             } ).then(function () {
                 dataTable.row(fileRow).remove().draw();
                 apiDeleteFileWithToken(fileTitle);
