@@ -40,6 +40,7 @@
 				"oojs-ui-widgets",
 				"oojs-ui.styles.icons",
                 "oojs-ui.styles.icons-editing-core",
+                "oojs-ui.styles.icons-content",
 				"mediawiki.widgets"
 			],
 			"scripts": [                
@@ -121,7 +122,7 @@
 				"mediawiki.api",				
 				"mediawiki.Title",
 				"mediawiki.api.edit",
-				"mediawiki.api.parse"				
+				"mediawiki.api.parse"			
 			],
 			"scripts": [
 				"modules/ext.MaterialCreatePage.js"                
@@ -132,6 +133,7 @@
             "messages": [
 				"modal-title-input-placeholder",
 				"modal-title-input-label",
+                "modal-title-rename-input-label",
 				"modal-popup-warning-page-exists",
 				"modal-categories-selector-label",
 				"modal-categories-placeholder",
@@ -142,8 +144,14 @@
 				"modal-popup-warning-template-not-exists",
 				"modal-popup-warning-title-missing",
 				"modal-create-page-button",
+                "modal-save-page-button",
+                "modal-create-save-popup",
+                "modal-edit-save-popup",
                 "modal-edit-page-button",
-				"modal-close-button",
+                "modal-redirect-ve-button",
+                "modal-close-button",
+                "modal-categories-no-suggestion",
+                "modal-continue-to-edit",
 				"create-page-redirect-to-edit",
                 "edited-successfully",
 				"modal-ok-button",
@@ -151,6 +159,7 @@
 				"created-successfully",
                 "create-toggle-popup",
                 "edit-toggle-popup",
+                "quick-edit-toggle-popup",
                 "files-toggle-popup",
                 "upload-toggle-popup"
             ]			

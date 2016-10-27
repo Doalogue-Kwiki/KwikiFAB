@@ -9,6 +9,33 @@
     height: 1.875em;
 }
 
+.oo-ui-buttonElement > .oo-ui-buttonElement-button {
+    cursor: pointer;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    vertical-align: middle;
+    font-weight: bold;
+    white-space: nowrap;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.oo-ui-dropdownWidget.oo-ui-iconElement .oo-ui-dropdownWidget-handle .oo-ui-labelElement-label {
+    margin-right: 3em;
+    color: black;
+}
+
+.oo-ui-textInputWidget.oo-ui-widget-disabled input, .oo-ui-textInputWidget.oo-ui-widget-disabled textarea {
+    color: black;
+    text-shadow: 0 -1px 1px #ffffff;
+    border-color: #dddddd;
+    background-color: #f3f3f3;
+}
+
 .oo-ui-icon-tag, .mw-ui-icon-tag:before {
     background-image: url(/w/load.php?modules=oojs-ui.styles.icons&image=tag&format=rasterized&lang=he&version=7d76bbf4fdbf);
 }
@@ -38,12 +65,13 @@
 }
 
 .oo-ui-icon-edit, .mw-ui-icon-edit:before {
-    background-image: url(/w/load.php?modules=oojs-ui.styles.icons-editing-core&image=edit&variant=progressive&format=rasterized&lang=en&version=f97902b57cd3) !important;
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons-editing-core&image=edit&format=rasterized&lang=en&version=2034d1e85691) !important; 
 }
 
 .oo-ui-icon-check, .mw-ui-icon-check:before {
-    background-image: url(http://wiki.democratic.co.il/w/load.php?modules=oojs-ui.styles.icons&image=check&variant=progressive&format=rasterized&lang=he&version=34c02464e8ef);
+    background-image: url(/w/load.php?modules=oojs-ui.styles.icons&image=check&variant=invert&format=rasterized&lang=he&version=748292b0c85d);
 }
+
 
 .oo-ui-indicator-clear {
     background-image: url(/w/load.php?modules=oojs-ui.styles.indicators&image=clear&format=rasterized&lang=he&version=7d76bbf4fdbf);
@@ -127,6 +155,11 @@ div#categoriesSelector input[type="text"] {
 
 .ms-ctn .ms-sel-item {
     font-size: 16px;
+}
+
+.ms-helper {
+    color: #AAA;
+    position: initial !important;
 }
 	
 .materialFieldset input {

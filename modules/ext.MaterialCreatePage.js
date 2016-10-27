@@ -48,21 +48,12 @@
         }, params)).done(function () {
             swal( {
                 title: titleMessage,
-                text: textMessage,
-                showCancelButton: true,
+                showCancelButton: false,
                 confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: mw.msg("modal-edit-page-button"),
-                cancelButtonText: mw.msg("modal-close-button"),
+                confirmButtonText: mw.msg("modal-close-button"),
                 buttonsStyling: true
             } ).then(function () {
-                window.location.href = "/w/index.php?title=" + pageTitle + "&veaction=edit";
-            }, function (dismiss) {
-                // dismiss can be 'cancel', 'overlay',
-                // 'close', and 'timer'                
-                console.log("modal closed");
                 window.location.reload();
-                //window.location.href = "/w/index.php?title=" + pageTitle;
             } );
 
         }).fail(function (code, result) {
@@ -133,9 +124,7 @@
         var wikiText = "";
         var selectedCategoriesText = "";
         var selectedCategories = categoriesSelector.getValue();
-        
-        console.log(selectedCategories);
-        
+
         selectedCategories.forEach(function (item) {
             selectedCategoriesText += "\n" + "[[category:" + item.toString() + "]]";
         });
@@ -309,8 +298,9 @@
                                          pageTitle.toText(),                                         
                                          isNew );
                     dialog.close();
-                    windowManager.destroy();
-                } else {
+                    windowManager.destroy();                    
+                } 
+                else if (action === "create") {
                     isPageTitleVaild(pageTitle.toText(), titleInput, true);
 
                     if (isNewTitleVaild) {
@@ -332,17 +322,20 @@
                         }
                     }
                 }
+                else if (action === "redirect") {
+                    window.location.href = "/w/index.php?title=" + pageTitle;
+                    dialog.close();
+                    windowManager.destroy();
+                }
             } else {
                 $.simplyToast(mw.msg("modal-popup-warning-title-missing"), 'danger');
             }
         };
 
-        //title, actions, content, mainAction, mainActionFunc, windowManager, height
         MaterialDialog(
             dialogTitle,
             dialogActionButtons,
             fieldset,
-            actionMain,
             mainFunction,
             dialogHeight
         );
@@ -360,7 +353,6 @@
                 //list: 'allcategories',
                 utf8: true
             } ).done(function (res) {
-                console.log(res);
                 var categories = res.parse.categories;
                 categories.map(function (item) {
                     // add only categories that are not selected.
@@ -394,10 +386,12 @@
         var templateSelector = "";
 
         var fieldset = new OO.ui.FieldsetLayout();
-
+        var titleLabelMsg = mw.msg("modal-title-rename-input-label");
+        
         // In create mode
         if (!editTitle.isEdit)
         {
+            titleLabelMsg = mw.msg("modal-title-input-label");
             templateSelector = new mw.widgets.TitleInputWidget({
                 id: "template-input",
                 placeholder: mw.msg("modal-template-placeholder"),
@@ -437,7 +431,7 @@
             } ),
             new OO.ui.FieldLayout(titleInput, {
                 id: "modal-title-fieldset",
-                label: mw.msg("modal-title-input-label"),
+                label: titleLabelMsg,
                 classes: ['materialFieldset'],
                 align: 'top'
             } ),
@@ -461,7 +455,8 @@
                                          isNew);
                     dialog.close();
                     windowManager.destroy();
-                } else {
+                } 
+                else if (action === "create") {
 
                     isPageTitleVaild(pageTitle.toText(), titleInput, true);
                     var templateTitleText = "";
@@ -496,25 +491,28 @@
                         }
                     }
                 }
+                else if (action === "redirect") {
+                    window.location.href = "/w/index.php?title=" + pageTitle;
+                    dialog.close();
+                    windowManager.destroy();
+                }
             } else {
                 $.simplyToast(mw.msg("modal-popup-warning-title-missing"), 'danger');
             }
         };
 
-        var dialogHeight = 500;
+        var dialogHeight = 550;
 
-        //title, actions, content, mainAction, mainActionFunc, windowManager, height
         MaterialDialog(
             dialogTitle,
             dialogActionButtons,
             fieldset,
-            actionMain,
             mainFunction,
             dialogHeight
         );
     };
 
-    function loadModalElements(editTitle, wgFABNamespacesAndTemplates) {
+    function loadModalElements(editTitle, wgFABNamespacesAndTemplates, isNewRedLink = false) {
 
         var categoriesInputSelector =  new OO.ui.LabelWidget( {            
             id: "categoriesSelector",
@@ -527,6 +525,7 @@
             autocomplete: false,
             showRedlink: false,
             suggestions: false,
+            disabled: isNewRedLink,
             value: editTitle.title,
             namespace: editTitle.namespaceId,
             placeholder: mw.msg("modal-title-input-placeholder"),
@@ -535,27 +534,20 @@
 
         var dialogTitle = mw.msg("create-toggle-popup");
         var actionMainButtonLabel = mw.msg("modal-create-page-button");
+        var actionMainButtonIconTitle = mw.msg("modal-create-save-popup");
         var actionMain = "create";
         var actionMainIcon = "add";
 
         // In edit mode
         if (editTitle.isEdit) {
-            dialogTitle = mw.msg("edit-toggle-popup");
-            actionMainButtonLabel = mw.msg("modal-edit-page-button");
+            dialogTitle = mw.msg("quick-edit-toggle-popup");
+            actionMainButtonLabel = mw.msg("modal-save-page-button");
+            actionMainButtonIconTitle = mw.msg("modal-edit-save-popup");
             actionMain = "edit";
             actionMainIcon = "edit";
         }
 
         var dialogActionButtons = [
-            {
-                id: "model-main-button",
-                action: actionMain,
-                framed: false,
-                icon: actionMainIcon,
-                label: actionMainButtonLabel,
-                iconTitle: actionMainButtonLabel,
-                flags: ['other', 'progressive']
-            },
             {
                 id: "model-close-button",
                 action: 'close',
@@ -563,9 +555,34 @@
                 icon: 'close',
                 iconTitle: mw.msg("modal-close-button"),
                 flags: 'safe'
-            }];
-
+            },
+            {
+                id: "model-main-button",
+                action: actionMain,
+                framed: true,
+                icon: actionMainIcon,
+                label: actionMainButtonLabel,
+                iconTitle: actionMainButtonIconTitle,
+                flags: ['primary', 'progressive']
+            }
+           ];
+                
+        if ( isNewRedLink ) {        
+            var redirectButton = {
+                id: "redirect-ve-button",
+                action: 'redirect',
+                framed: false,
+                icon: 'articleRedirect',
+                label: mw.msg("modal-redirect-ve-button"),
+                iconTitle: mw.msg("modal-redirect-ve-button"),
+                flags: ['safe', 'destructive']
+            };
+            
+            dialogActionButtons.push(redirectButton);
+        }
+        
         var namespaceSelector = new OO.ui.DropdownInputWidget( {
+            disabled: isNewRedLink,
             dropdown: {
                 icon: "code",
                 label: mw.msg("modal-namespace-selector-label"),
@@ -644,7 +661,7 @@
             sortOrder: 'name',
             data: categoriesData,
             value: editTitle.selectedCategories,
-            noSuggestionText: "",
+            noSuggestionText: mw.msg("modal-categories-no-suggestion"),
             placeholder: mw.msg("modal-categories-placeholder"),
             toggleOnClick: true,
             strictSuggest: true,
@@ -704,7 +721,19 @@
 
         /////////////////////////////////////////////////////////////////////////
 
-        $(document).on("click", "#edit_toggle", function (e) {
+        $(document).on("click", "#ve_edit_toggle", function (e) {
+            e.preventDefault();
+
+            // pageName also include the namespace.
+            var pageName = mw.config.get('wgPageName');
+            
+            var veLinkTarget =  "/w/index.php?title=" + pageName + "&veaction=edit";
+            window.location = veLinkTarget;
+        });
+
+        /////////////////////////////////////////////////////////////////////////
+        
+        $(document).on("click", "#quick_edit_toggle", function (e) {
             e.preventDefault();
 
             var pageTitle = mw.config.get('wgTitle');
@@ -724,25 +753,20 @@
             loadModalElements(editTitle, wgFABNamespacesAndTemplates);
         });
 
+
         /////////////////////////////////////////////////////////////////////////
 
-        $(document).on("click", ".new", function (e) {
-            e.preventDefault();
-
-            swal( {
-                title:  mw.msg("modal-create-new-red-page"),
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: mw.msg("modal-create-page-button"),
-                cancelButtonText: mw.msg("modal-close-button"),
-                buttonsStyling: true
-            } ).then(function () {
-
+        $(document).on("click", ".new", function (e) {            
+            
+            // Check if the visual editor is active right now
+            if(!$('html').hasClass( 've-active' ))
+            {
+                e.preventDefault();
                 var splitedFirst = e.currentTarget.title.split('(');
                 var wgNamespaceIds = mw.config.get('wgNamespaceIds');
                 var createdNamespaceId = 0;
                 var createdTitle = splitedFirst[0].trim();
+                var isNewRedLink = true;
 
                 if (createdTitle.includes(":")) {
                     var splitedSec = splitedFirst[0].split(':');
@@ -769,19 +793,15 @@
                     });
 
                     if (isNamespaceExist) {
-                        loadModalElements(editTitle, wgFABNamespacesAndTemplates);
+                        loadModalElements(editTitle, wgFABNamespacesAndTemplates, isNewRedLink);
                     } else {
                         window.location = e.target.href;
                     }
 
                 } else {
-                    loadModalElements(editTitle, wgFABNamespacesAndTemplates);
+                    loadModalElements(editTitle, wgFABNamespacesAndTemplates, isNewRedLink);
                 }
-            }, function (dismiss) {
-                // dismiss can be 'cancel', 'overlay',
-                // 'close', and 'timer'                
-                console.log("modal closed");
-            } ); 
+            }
         } );
     };
 
@@ -809,28 +829,28 @@
             ],
             "menu-items": [
                 {
-                    "id": "edit_toggle",
+                    "id": "quick_edit_toggle",
                     "href": "#",
-                    "label": mw.msg("edit-toggle-popup"),
-                    "bg-color": (isEnabled ? "#4CAF50" : disabledBtnColor),
+                    "label": mw.msg("quick-edit-toggle-popup"),
+                    "bg-color": (isEnabled ? "#4CAF50" : disabledBtnColor),                    
                     "class-icon": "material-icons",
-                    "icon": "mode_edit"
+                    "icon": "style"
                 },
                 {
                     "id": "files_toggle",
                     "href": "#",
                     "label": mw.msg("files-toggle-popup"),
-                    "bg-color": (isEnabled ? "#ffc107" : disabledBtnColor),
+                    "bg-color": (isEnabled ? "#ffa726" : disabledBtnColor),
                     "class-icon": "material-icons",
                     "icon": "perm_media"
-                },
+                },  
                 {
-                    "id": "upload_toggle",
+                    "id": "ve_edit_toggle",
                     "href": "#",
-                    "label": mw.msg("upload-toggle-popup"),
+                    "label": mw.msg("edit-toggle-popup"),
                     "bg-color": (isEnabled ? "#2196F3" : disabledBtnColor),
                     "class-icon": "material-icons",
-                    "icon": "cloud_upload"
+                    "icon": "mode_edit"
                 }
             ]
         };

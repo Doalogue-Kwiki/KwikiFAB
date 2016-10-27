@@ -5,8 +5,7 @@
 
 	var createMaterialDialog = function ( title,
                                           actions,
-                                          content,
-                                          mainAction, 
+                                          content, 
                                           mainActionFunc,
                                           height, 
                                           windowManager, 
@@ -57,13 +56,14 @@
 		MaterialDialog.prototype.getActionProcess = function ( action ) {
 			var dialog = this;
 
-			if ( action === mainAction ) {
+            if ( action != 'close' ) {
+                
 				return new OO.ui.Process( function () {				
 					
 					try {
                         if (mainActionFunc)
                         {
-                            mainActionFunc(dialog, mainAction, windowManager);	
+                            mainActionFunc(dialog, action, windowManager);	
                         }
 					}
 					catch (e) {
@@ -72,9 +72,8 @@
                         windowManager.destroy();
 					}	
 				} );
-			} 
-			
-			if ( action === 'close' ) {				
+                
+			} else {				
 				return new OO.ui.Process( function () {					
 					dialog.close();
 					windowManager.destroy();
@@ -91,8 +90,7 @@
 	
     var openMaterialDialog = function (  title,
                                          actions,
-                                         content, 
-                                         mainAction,
+                                         content,
                                          mainActionFunc, 
                                          height,
                                          dialogSize = "large" ) {
@@ -102,7 +100,7 @@
             var windowManager = new ve.ui.WindowManager();            
     
 			var materialDialog = 
-				createMaterialDialog( title, actions, content, mainAction, mainActionFunc, height, windowManager );		
+				createMaterialDialog( title, actions, content, mainActionFunc, height, windowManager );		
 			windowManager.addWindows( [ materialDialog ] );
 			// Open the window!
 			windowManager.openWindow( materialDialog );
