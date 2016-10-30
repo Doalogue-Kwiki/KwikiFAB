@@ -84,7 +84,7 @@
                 action: 'move',
                 from: oldTitle,
                 to: pageTitle,
-                noredirect: true,
+                noredirect: false,
                 formatversion: '2',
                 // Protect against errors and conflicts
                 assert: mw.user.isAnon() ? undefined : 'user'
@@ -756,7 +756,7 @@
 
         /////////////////////////////////////////////////////////////////////////
 
-        $(document).on("click", ".new", function (e) {            
+        $("#content").on("click", ".new", function (e) {            
             
             // Check if the visual editor is active right now
             if(!$('html').hasClass( 've-active' ))

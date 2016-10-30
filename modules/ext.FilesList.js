@@ -164,7 +164,7 @@
                 _.each( searchFileUsage.fileusage, function (item) {                    
                     var pageTitle = item.title;
                     isFileChecked = (currentPageTitle == pageTitle);
-                    fileUsageLinks += '<a href="/'+ pageTitle + '"> '+ pageTitle + '* </a>';
+                    fileUsageLinks += '    <a href="/'+ pageTitle + '"> '+ pageTitle + '</a>';
                 } );
             }
 
