@@ -4,7 +4,7 @@
 			"Hagai Asaban"
 		]
 	},
-    "material-create-page-desc": "Material Action Button for creating page extension",
+    "kwiki-fab-desc": "Kwiki Fixed Action Button extension",
 	"modal-title-input-placeholder": "הדף שברצונך ליצור",
 	"modal-title-input-label": "שם הדף",
     "modal-title-rename-input-label": "שינוי שם הדף",
@@ -26,7 +26,7 @@
     "modal-save-page-button": "שמור",
     "modal-edit-save-popup": "שמור וערוך",
     "modal-edit-page-button": "ערוך",
-    "modal-continue-to-edit": "המשך לעריכה",
+    "modal-continue-to-page": "המשך לעריכת הדף",
     "modal-redirect-ve-button":"מעבר לעריכת דף",
     "modal-categories-no-suggestion": "לחץ מקש Enter להוספה",
 	"modal-close-button": "סגור",
@@ -68,6 +68,7 @@
     "title-description": "תיאור",
     "title-file-usage": "שימוש בדפים",
     "title-user": "משתמש",
-    "title-date": "תאריך"
+    "title-date": "תאריך",
+	"minute": " min"
     
 }

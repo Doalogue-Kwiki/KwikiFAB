@@ -68,6 +68,23 @@ table.fixedHeader-locked {
     margin: 0 auto;
 }
 
+.responsive {
+    position: relative;
+    padding-bottom: 0!important;
+    padding-top: 0!important;
+    height: 0;
+    max-width: 900px;
+    margin: auto;
+    overflow: hidden;
+}
+
+.responsive > * {
+    position: static !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 /* File Link Image*/
 

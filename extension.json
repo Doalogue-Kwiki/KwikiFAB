@@ -1,31 +1,28 @@
 {
-	"name": "MaterialCreatePage",
-	"version": "0.2.5",
+    "name": "KwikiFAB",
+	"version": "0.2.7",
 	"author": [
 		"[http://kwiki.co.il Kwiki]",
 		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
 		"[[mw:user:Yacohen|Yacohen]]"
 	],
-	"url": "doalogue-kwiki/MaterialCreatePage",
-	"descriptionmsg": "material-create-page-desc",
+    "url": "doalogue-kwiki/KwikiFAB",
+    "descriptionmsg": "kwiki-fab-desc",
 	"license-name": "GPL v2",
 	"type": "other",
 	"AutoloadClasses": {
-		"MaterialCreatePageHooks": "MaterialCreatePage.hooks.php"
+        "KwikiFABHooks": "KwikiFAB.hooks.php"
 	},
 	"config": {
 		"FABNamespacesAndTemplates": []
 	},
-	"ExtensionMessagesFiles": {
-		"MaterialCreatePageAlias": "MaterialCreatePage.i18n.alias.php"
-	},
 	"Hooks": {
 		"BeforePageDisplay": [
-			"MaterialCreatePageHooks::onBeforePageDisplay"
+            "KwikiFABHooks::onBeforePageDisplay"
 		]
 	},
 	"MessagesDirs": {
-		"MaterialCreatePage": [
+        "KwikiFAB": [
 			"i18n"
 		]
 	},
@@ -144,7 +141,7 @@
                 "upload.mustache" : "templates/upload.mustache"
             }		
         },
-		"ext.MaterialCreatePage": {
+        "ext.KwikiFAB": {
 			"dependencies": [
 				"ext.MaterialDialog",				
 				"mediawiki.api",				
@@ -153,10 +150,10 @@
 				"mediawiki.api.parse"			
 			],
 			"scripts": [
-				"modules/ext.MaterialCreatePage.js"                
+                "modules/ext.KwikiFAB.js"                
 			],
             "styles": [
-                "modules/ext.MaterialCreatePage.css"
+                "modules/ext.KwikiFAB.css"
             ],
             "messages": [
 				"modal-title-input-placeholder",
@@ -179,7 +176,7 @@
                 "modal-redirect-ve-button",
                 "modal-close-button",
                 "modal-categories-no-suggestion",
-                "modal-continue-to-edit",
+                "modal-continue-to-page",
 				"create-page-redirect-to-edit",
                 "edited-successfully",
 				"modal-ok-button",
@@ -195,7 +192,7 @@
 	},
 	"ResourceFileModulePaths": {
 		"localBasePath": "",
-		"remoteExtPath": "MaterialCreatePage"
+        "remoteExtPath": "KwikiFAB"
 	},
 	"SpecialPages": {},
 	"manifest_version": 1
