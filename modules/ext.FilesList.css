@@ -1,5 +1,4 @@
 /* @noflip */
-
 #idt-table_filter,
 #idt-table_filter label {
     width: 100% !important;
@@ -28,7 +27,6 @@ div.dataTables_filter input {
 }
 
 /* @noflip */
-
 #idt-table_filter input {
     background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiB3aWR0aD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTMxIDI4aC0xLjU5bC0uNTUtLjU1YzEuOTYtMi4yNyAzLjE0LTUuMjIgMy4xNC04LjQ1IDAtNy4xOC01LjgyLTEzLTEzLTEzcy0xMyA1LjgyLTEzIDEzIDUuODIgMTMgMTMgMTNjMy4yMyAwIDYuMTgtMS4xOCA4LjQ1LTMuMTNsLjU1LjU1djEuNThsMTAgOS45OCAyLjk4LTIuOTgtOS45OC0xMHptLTEyIDBjLTQuOTcgMC05LTQuMDMtOS05czQuMDMtOSA5LTkgOSA0LjAzIDkgOS00LjAzIDktOSA5eiIvPjxwYXRoIGQ9Ik0wIDBoNDh2NDhoLTQ4eiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==);
     background-repeat: no-repeat;
@@ -87,6 +85,15 @@ table.fixedHeader-locked {
 }
 
 /* File Link Image*/
+
+img[id$="loadingSpinner"] {
+    content: url(../icons/spinner.gif);
+    margin: 0 auto;
+    display: block;
+    -webkit-transition: opacity 1s ease-in-out;
+    transition: opacity 1s ease-in-out;
+}
+
 
 img[src$=".zip"] {
     content: url(../icons/zip.png);

@@ -12,8 +12,7 @@
 	right: 0;
 	bottom: 0;
 	left: 0;
-    padding-top: 3vh;
-    padding-bottom: 3vh;
+    padding: 1em;
 	z-index: 1000;
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -49,8 +48,8 @@
 /* @noflip */
 .tingle-modal__close {
 	position: fixed;
-    top: 1vh;
-    right: 1vh;
+    /*top: 1vh;*/
+    /*right: 1vh;*/
 	z-index: 1000;
 	padding: 0;
 	width: 40px;

@@ -1,6 +1,6 @@
 {
     "name": "KwikiFAB",
-	"version": "0.2.7",
+	"version": "0.3.0",
 	"author": [
 		"[http://kwiki.co.il Kwiki]",
 		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
@@ -66,7 +66,7 @@
                 "ext.MaterialDialog",                
                 "mediawiki.api"
             ],
-            "scripts": [                	
+            "scripts": [
                 "lib/moment/moment.min.js",
                 "lib/DataTables/datatables.min.js",
                 "lib/DataTables/Highlight/dataTables.searchHighlight.min.js",
@@ -79,6 +79,9 @@
                 "modules/ext.FilesList.css"
             ],
             "messages": [
+                "title-selected-file",
+                "title-click-select-file",
+                "title-select-file",                
                 "modal-close-button",
                 "files-toggle-popup",
                 "modal-delete-title",
@@ -118,6 +121,7 @@
             "dependencies": [
                 "ext.MaterialDialog",
                 "ext.FilesList",
+                "ext.KwikiFAB",
                 "mediawiki.Upload",
                 "mediawiki.Upload.Dialog"
             ],
@@ -135,7 +139,9 @@
                 "uploaded-successfully",
                 "modal-upload-label-button",
                 "upload-files-dialog-title",
-                "modal-popup-warning-file-missing"
+                "modal-popup-warning-file-missing",
+                "modal-categories-placeholder",
+                "modal-categories-no-suggestion"
             ],
             "templates": {
                 "upload.mustache" : "templates/upload.mustache"

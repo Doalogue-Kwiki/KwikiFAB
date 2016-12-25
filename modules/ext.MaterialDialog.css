@@ -126,7 +126,7 @@
 }
 
 .oo-ui-windowManager-modal > .oo-ui-dialog.oo-ui-window-active {
-	z-index: 2;
+	z-index: 999;
 }
 
 @-webkit-keyframes fadeIn {
@@ -168,4 +168,22 @@ div#categoriesSelector input[type="text"] {
 
 .ms-ctn .ms-trigger .ms-trigger-ico {
     margin-top: 16px;
+}
+
+/* @noflip */
+.tingle-modal__close {
+    position: fixed;
+    /*top: 0;*/
+    /*right: 0;*/
+    z-index: 1000;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 35px;
+    line-height: normal;
+    cursor: pointer;
 }

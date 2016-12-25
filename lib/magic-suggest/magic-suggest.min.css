@@ -46,7 +46,7 @@
     padding: 0;
     line-height: 1.42857143;
     margin: 1px 0;
-    width: 100%;
+    width: 100% !important;
 }
 .ms-ctn .ms-sel-ctn input{
     float: left;

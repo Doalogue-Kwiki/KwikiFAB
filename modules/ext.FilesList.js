@@ -88,13 +88,15 @@
         
         var params = "";
         var modalMsg = '[' + fileTitle + ']' + mw.msg("modal-delete-message");
+        
         api.postWithEditToken($.extend({
             action: 'delete',
             title: fileTitle,
             formatversion: '2',
             // Protect against errors and conflicts
             assert: mw.user.isAnon() ? undefined : 'user'
-        }, params)).done(function () {
+        }, params))
+        .done(function () {
             swal(
                 mw.msg("modal-delete-title"),
                 modalMsg
@@ -141,6 +143,20 @@
         });
     };
     
+    function removeCategoriesFromDescription(commentsText) {
+        // Text modification
+        function replaceByBlanks(match) {
+            // /./ doesn't match linebreaks. /(\s|\S)/ does.
+            return match.replace(/(\s|\S)/g, '');         
+        }
+          
+        var findCatRE = new RegExp('(\\[\\[(.*:.*)\\]\\])', 'gi'); 
+        commentsText = commentsText.replace(findCatRE, replaceByBlanks);
+        commentsText = commentsText.trim();        
+
+        return commentsText;
+    };
+    
     function setDataTableData(allfilesData, filesUsageData) {
         
         var tableData = [];
@@ -168,17 +184,17 @@
                 } );
             }
 
-            tableData.push( [                
+            tableData.push( [
+                isFileChecked,
                 '<a href="' + item.url + '" title="' + linkTitle + '"><img src="' + item.url + '" alt="' + fileName + '" class="imgList"></a>',
                 '<a href="' + item.descriptionurl + '" title="' + fileLinkTitle + '">' + fileName + '</a>',
-                item.comment,
+                removeCategoriesFromDescription(item.comment),
                 fileUsageLinks,
                 '<a href="/w/index.php?title=user:' + item.user + '" title="' + item.user + '">' + item.user + '</a>',
                 dateTime.format("DD/MM/YY HH:mm"),
                 '<a href="#" class="deleteFileBtn" title="' + fileTitle + '">' +
                 '<i class="fa fa-trash"></i>' +
-                '</a>',                
-                isFileChecked,
+                '</a>',
                 attachFileExtensionCheck(fileExtension, fileName)             
             ] );
 
@@ -195,7 +211,7 @@
         var imagesGalleryToAttach = '\n<gallery heights=100px style="text-align:center">'; 
         
         selectedRowsData.each( function ( value, index ) {
-            console.log(value);
+            //console.log(value);
             var currentFile = value[8];
             
             if (currentFile.indexOf("[[Media:") !== -1) {
@@ -208,7 +224,7 @@
         imagesGalleryToAttach += "\n</gallery>\n";  
         imagesGalleryToAttach += filesToAttach;
         
-        console.log( imagesGalleryToAttach );
+        //console.log( imagesGalleryToAttach );
         loadPageWikiText(pageTitle, imagesGalleryToAttach);
     };    
 
@@ -241,11 +257,11 @@
         }
 
         var wikiTextWithOutGallery = wikiText.replace(/<gallery\b[^<]*(?:(?!<\/gallery>)<[^<]*)*<\/gallery>/g, '');
-        console.log(wikiTextWithOutGallery);
+        //console.log(wikiTextWithOutGallery);
         var wikiTextWithOutMedia = wikiTextWithOutGallery.replace(/\[\[((Media|מדיה):.+)\]\]/g, '');
         var content = wikiTextWithOutMedia.trim();
                 
-        console.log(content);
+        //console.log(content);
         
         var isNew = (Boolean(content) == false);
         content += filesToAttach; 
@@ -253,22 +269,26 @@
         EditOrCreatePage(pageTitle, content, isNew);
     };
     
-    function loadFilesLists(tableData) {
-        
+    function loadMaterialModal() {
         // Create modal and set his content
-        var modalContent =
-            '<table id="idt-table" class="row-border hover responsive" cellspacing="0" width="100%"></table>';
 
+        var modalContent =
+            '<img id="loadingSpinner">' + 
+            '<table id="idt-table" class="row-border hover responsive" cellspacing="0" width="100%"></table>';
+        
         //var modalClass = 'materialDialog';
         var modalClass = '';       
-  
+
         MaterialModal( modalContent, modalClass );
-        
+    };
+    
+    function loadModalFAB(){
+        var toClass = ".tingle-modal";
         var isMenuButtonEnabled = true;
         var uploadMenuButtonsData = {
             "menu-id": "md-fab-menu",
             "menu-location": "br", // bottom-right
-            "menu-toggle-event": "hover",
+            "menu-toggle-event": "click",
             "main-button": [
                 {                    
                     "bg-color": (isMenuButtonEnabled ? '#2196F3' : "#cacaca"),
@@ -281,111 +301,12 @@
                     "active-icon": "cloud_upload"
                 }
             ]
-        };
-        var toClass = ".tingle-modal";
-        MaterialAddFAB( uploadMenuButtonsData, toClass );
-                               
-        setSortDataTableWithMoment("DD/MM/YY HH:mm");
-
-        var dataTable = $('#idt-table').DataTable({
-            data: tableData,
-            dom: 'frti',
-            language: {
-                processing: mw.msg("processing"),
-                lengthMenu: mw.msg("lengthMenu"),
-                zeroRecords: mw.msg("zeroRecords"),
-                emptyTable: mw.msg("emptyTable"),
-                info: mw.msg("info"),
-                infoEmpty: mw.msg("infoEmpty"),
-                infoFiltered: mw.msg("infoFiltered"),
-                infoPostFix: mw.msg("infoPostFix"),
-                search: "_INPUT_",
-                searchPlaceholder: mw.msg("searchPlaceholder"),
-                url: mw.msg("url"),
-                paginate: {
-                    first: mw.msg("paginate-first"),
-                    previous: mw.msg("paginate-previous"),
-                    next: mw.msg("paginate-next"),
-                    last: mw.msg("paginate-last")
-                }
-            },
-            order: [[5, "desc"]],
-            paging: false,
-            deferRender: true,
-            scrollCollapse: false,
-            scroller: true,
-            responsive: true,
-            autoWidth: false,
-            searchHighlight: true,
-            columns: [                
-                {
-                    title: mw.msg("title-image"),
-                    orderable: false,
-                    class: "all center-col"
-                },
-                {
-                    title: mw.msg("title-name"),
-                    class: "all"
-                },
-                {
-                    title: mw.msg("title-description"),
-                    class: "desktop"
-                },
-                {
-                    title: mw.msg("title-file-usage"),
-                    class: "desktop fileUsage center-col"
-                },
-                {
-                    title: mw.msg("title-user"),
-                    class: "all center-col"
-                },
-                {
-                    title: mw.msg("title-date"),
-                    class: "all center-col"
-                },
-                {
-                    title: '<i class="fa fa-trash-o"></i>',
-                    orderable: false,
-                    class: "all center-col"
-                },
-                {
-                    title: '<i class="fa fa-paperclip"></i>',
-                    orderable: false,
-                    class: "all center-col",
-                    render: function ( isFileChecked, type, row, meta ) {
-                        var api = new $.fn.dataTable.Api(meta.settings);
-                        if( isFileChecked ) {
-                            $(api.row(meta.row).node()).toggleClass('selected');                         
-                        }
-                        return isFileChecked ? '<input type="checkbox" checked/>' : '<input type="checkbox" />'
-                    }
-                },
-                {
-                    orderable: false,
-                    visible: false,
-                    searchable: false
-                }
-            ]
-        });
-
-        $('input').iCheck({
-            checkboxClass: 'icheckbox_square-blue',
-            increaseArea: '20%' // optional
-        });
+        };       
         
-        $('input').iCheck('update');
-        
-        /*
-        $('input').on('ifToggled', function(event){            
-            var selectedRow = $(this).closest('tr');
-            selectedRow.toggleClass('selected');
-            //$(this).toggleClass('selected');
-        });*/
-
         var addFilesToPageButtonsData = {
             "menu-id": "md-fab-add-to-page",
             "menu-location": "bl", // bottom-left
-            "menu-toggle-event": "hover",
+            "menu-toggle-event": "click",
             "main-button": [
                 {                    
                     "bg-color": "#cacaca",
@@ -399,9 +320,38 @@
                 }
             ]
         };
-
-        MaterialAddFAB( addFilesToPageButtonsData, toClass );
         
+        MaterialAddFAB( uploadMenuButtonsData, toClass );
+        MaterialAddFAB( addFilesToPageButtonsData, toClass );
+    };
+    
+    function loadDataTableEvents(dataTable) {
+
+        dataTable.on('draw', function () {
+            var body = $(dataTable.table().body());
+            body.unhighlight();
+            body.highlight(dataTable.search());
+        } );
+
+        /*
+        $('input').on('ifToggled', function(event){            
+            var selectedRow = $(this).closest('tr');
+            selectedRow.toggleClass('selected');
+            //$(this).toggleClass('selected');
+        });*/
+
+        $('#idt-table tbody').on( 'click', 'tr', function () {
+            var selectRow = $(this);
+            var checkInput = selectRow.find('input[type="checkbox"]');
+
+            if ( selectRow.hasClass('selected') ) {
+                checkInput.iCheck('uncheck');
+            }
+            else {
+                checkInput.iCheck('check');                
+            }
+        } );
+
         $('#idt-table tbody').on('click', 'a.deleteFileBtn', function (e) {
             var item = $(this)[0];
             var fileTitle = item.title;
@@ -427,46 +377,178 @@
             return false;
         } );
 
-        dataTable.on('draw', function () {
-            var body = $(dataTable.table().body());
-            body.unhighlight();
-            body.highlight(dataTable.search());
-        } );
-                
-        var attachButton = $('#md-fab-add-to-page').find("a");
-
-        $('input').on('ifChecked', function(event) {            
+        $('input').on('ifChecked', function(event) { 
+            var attachButton = $('#md-fab-add-to-page').find("a");
             var selectedRow = $(this).closest('tr');
             selectedRow.toggleClass('selected');
+            $(this).parent().attr('title', mw.msg("title-selected-file"));
+
             // enabled the attach button.
             attachButton.css("background-color", '#ffc107');
         } );
 
-        $('input').on('ifUnchecked', function(event) {            
+        $('input').on('ifUnchecked', function(event) {
+            var attachButton = $('#md-fab-add-to-page').find("a");
             var selectedRow = $(this).closest('tr');
             selectedRow.toggleClass('selected');
-            
+            $(this).parent().attr('title', mw.msg("title-click-select-file"));
+
             // if any row selected disabled the attach button.
             if ( !dataTable.rows('.selected').data().length ) {
                 attachButton.css("background-color", '#cacaca');  
             }
         } );
-        
+
+        $('input').on('ifCreated', function(event) {
+
+            var selectedRow = $(this).closest('tr');
+
+            if ( selectedRow.hasClass('selected') ) {
+                $(this).parent().attr('title', mw.msg("title-selected-file"));
+            } else {
+                $(this).parent().attr('title', mw.msg("title-click-select-file"));
+            }
+        });
+
+        //$('input').iCheck('update');
+
         $(document).on("click", "#md-fab-add-to-page", function (e) {
             e.preventDefault();
             var selectedRowsData = dataTable.rows('.selected').data();
-            
+
             // check that selected files are at least 1.
             if (selectedRowsData.length) {                
                 attachSelectedFiles(selectedRowsData);
             }
+        } );
+    };
+    
+    function loadFilesLists(tableData) {        
+                         
+        setSortDataTableWithMoment("DD/MM/YY HH:mm");
+
+        var dataTable = $('#idt-table').DataTable({
+            //processing: true,
+            data: tableData,
+            dom: 'frti',
+            language: {
+                processing: mw.msg("processing"),
+                lengthMenu: mw.msg("lengthMenu"),
+                zeroRecords: mw.msg("zeroRecords"),
+                emptyTable: mw.msg("emptyTable"),
+                info: mw.msg("info"),
+                infoEmpty: mw.msg("infoEmpty"),
+                infoFiltered: mw.msg("infoFiltered"),
+                infoPostFix: mw.msg("infoPostFix"),
+                search: "_INPUT_",
+                searchPlaceholder: mw.msg("searchPlaceholder"),
+                url: mw.msg("url"),
+                paginate: {
+                    first: mw.msg("paginate-first"),
+                    previous: mw.msg("paginate-previous"),
+                    next: mw.msg("paginate-next"),
+                    last: mw.msg("paginate-last")
+                }
+            },
+            order: [[6, "desc"]],
+            paging: false,
+            deferRender: true,
+            scrollCollapse: false,
+            scroller: true,
+            responsive: true,
+            autoWidth: false,
+            select: {
+                style: 'multi'
+            },
+            searchHighlight: true,
+            fnDrawCallback: function() {
+                $('th').each(function(){ 
+                    var titleText = $(this).context.textContent;
+                    var curretTitle = $(this).context.title;
+                    if (!curretTitle){
+                        $(this).attr({ title: $(this).context.textContent }); 
+                    }                   
+                }); 
+            },           
+            columns: [
+                {
+                    title: '<i class="fa fa-paperclip" title="' + mw.msg("title-select-file") + '"></i>',
+                    orderable: false,
+                    class: "all center-col",
+                    render: function ( isFileChecked, type, row, meta ) {
+                        var api = new $.fn.dataTable.Api(meta.settings);
+                        if( isFileChecked ) {
+                            $(api.row(meta.row).node()).toggleClass('selected');
+                        }
+                        return isFileChecked ? 
+                            '<input title="'+ mw.msg("title-selected-file") + '" type="checkbox" checked/>' : 
+                        '<input title="' + mw.msg("title-click-select-file") + '" type="checkbox" />'
+                    }
+                },
+                {
+                    title: mw.msg("title-image"),
+                    orderable: false,
+                    class: "all center-col"
+                },
+                {
+                    title: mw.msg("title-name"),
+                    class: "all"
+                },
+                {
+                    title: mw.msg("title-description"),
+                    class: "desktop"
+                },
+                {
+                    title: mw.msg("title-file-usage"),
+                    class: "desktop fileUsage center-col"
+                },
+                {
+                    title: mw.msg("title-user"),
+                    class: "desktop center-col"
+                },
+                {
+                    title: mw.msg("title-date"),
+                    class: "desktop center-col"
+                },
+                {
+                    title: '<i class="fa fa-trash-o" title="' + mw.msg("modal-delete-button") + '"></i>',
+                    orderable: false,
+                    class: "all center-col"
+                }                
+            ],
+            initComplete: function(settings, json) {
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_square-blue',
+                    increaseArea: '20%', // optional
+                    inherit: 'title'
+                });
+
+                // fix the bug of title of the checkbox.
+                $('input[type="checkbox"]').each( function() {
+                    var currentTitle = $(this)[0].title;
+                    $(this).parent().attr('title', currentTitle);
+                } );
+                
+                loadModalFAB();
+
+                $('#loadingSpinner').remove();
+                //or $('#loadingSpinner").empty();
+            }
         });
+        loadDataTableEvents(dataTable);
     };
 
     $(function () {
         $(document).on("click", "#files_toggle", function (e) {
             e.preventDefault();
-            if ($(".materialDialog").length < 1) {
+            
+            var isVeNotActive = (window.location.href.indexOf("veaction") === -1);
+            
+            $('#md-fab-menu').attr('data-mfb-state', 'close');
+            
+            if ( $(".materialDialog").length < 1 && isVeNotActive ) {
+                loadMaterialModal();                       
                 loadApiFilesData();
             } else {
                 return false;   

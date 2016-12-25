@@ -8,9 +8,6 @@
 
     var api = new mw.Api();
     var categoriesData = new Array();
-    loadApiCategoriesData();
-    
-
     var categoriesSelector;
 
     function getKey(array, value) {
@@ -58,7 +55,7 @@
                 cancelButtonText: mw.msg("modal-close-button"),
                 buttonsStyling: true
             } ).then(function () {
-                window.location.href = "/w/index.php?title=" + pageTitle + "&veaction=edit";
+                window.location.href = "/w/index.php?title=" + pageTitle + "&veaction=edit";                
             }, function (dismiss) {
                 // dismiss can be 'cancel', 'overlay',
                 // 'close', and 'timer'                
@@ -68,8 +65,9 @@
                 $.simplyToast(titleMessage, 'success'); 
                 
                 setTimeout(function(){
-                    window.location.href = "/" + pageTitle; 
-                }, 3000);                
+                    window.location.href = "/" + pageTitle;
+                    window.location.reload();
+                }, 1500);                
             }
 
         }).fail(function (code, result) {
@@ -125,14 +123,13 @@
             return match.replace(/(\s|\S)/g, '');         
         }
 
-        //var findCatsRE = new RegExp('\[\[((category|קטגוריה):[^|]+)\]\]', 'i');
-
         for ( index in categories ) {
-            var category = categories[index].replace(/_/g, ' ');
-            var findCatRE = new RegExp('(\\[\\[(.*:' + category + ')\\]\\])', 'g'); 
+            var category = categories[index].replace(/_/g, ' ');            
+            var findCatRE = new RegExp('(\\[\\[(.*:' + category + ')\\]\\])', 'gi'); 
             wikiText = wikiText.replace(findCatRE, replaceByBlanks);
             wikiText = wikiText.trim();
         }  
+        
         return wikiText;
     };
 
@@ -151,7 +148,7 @@
                 action: 'parse',
                 prop: 'categories|wikitext',
                 page: templateTitleText,
-                list: 'allcategories',
+                //list: 'allcategories',
                 utf8: true
             }).done(function (res) {
                 var templateWikiText = res.parse.wikitext;
@@ -366,7 +363,6 @@
                 action: 'parse',
                 prop: 'categories',
                 page: templateTitle,
-                //list: 'allcategories',
                 utf8: true
             } ).done(function (res) {
                 var categories = res.parse.categories;
@@ -529,6 +525,8 @@
 
     function loadModalElements(editTitle, wgFABNamespacesAndTemplates, isNewRedLink = false) {
 
+        $('#md-fab-menu').attr('data-mfb-state', 'close');
+        
         var categoriesInputSelector =  new OO.ui.LabelWidget( {            
             id: "categoriesSelector",
             label: $( '<input id="categoriesSelector" type="text">' )
@@ -686,7 +684,7 @@
         } );
     }
 
-    function loadApiCategoriesData() {
+    var loadApiCategoriesData = function(categoriesData) {
 
         api.get({
             formatversion: 2,
@@ -718,63 +716,126 @@
 
         var editTitle = {};
 
-        var wgFABNamespacesAndTemplates = mw.config.get('wgFABNamespacesAndTemplates');
+        var wgFABNamespacesAndTemplates = mw.config.get('wgFABNamespacesAndTemplates'); 
+        
+        /////////////////////////////////////////////////////////////////////
+        $(document).on("blur", "#md-fab-menu", function (e) {
+            e.preventDefault();
+            
+            var isVeNotActive = (window.location.href.indexOf("veaction") === -1);
+            
+            if (isVeNotActive) {
+                $('#md-fab-menu').attr('data-mfb-state', 'close');
+            }
+        });           
+   
+        
+        /////////////////////////////////////////////////////////////////////
+        
+        $(document).on("click", "#ca-ve-edit", function (e) {
+            $('#md-fab-menu .mfb-component__button--main').css('background-color', '#7d7c7c');
+            $('#md-fab-menu .mfb-component__button--main').css('cursor','not-allowed');
+        });  
+        
+        ////////////////////////////////////////////////////////////////////
+        
+        /*$(document).on("click", "#add_toggle", function (e) {
+            e.preventDefault();
 
-        /////////////////////////////////////////////////////////////////////////
-
-        $(document).on("click", "#create_toggle", function (e) {
             editTitle = {
                 title: "",
                 namespaceId: 0,
                 isEdit: false,
                 selectedCategories: []
             };
-
+            
+            loadModalElements(editTitle, wgFABNamespacesAndTemplates);   
+        }); */ 
+        
+        ////////////////////////////////////////////////////////////////////
+        
+        $(document).on("click", "#create_toggle", function (e) {
             e.preventDefault();
-            loadModalElements(editTitle, wgFABNamespacesAndTemplates);
-        });
+            
+            var isVeNotActive = (window.location.href.indexOf("veaction") === -1);
+
+            if (isVeNotActive) {
+                
+                var menuState = $('#md-fab-menu').attr('data-mfb-state');
+                var mfbToggleType = $('#md-fab-menu').attr('data-mfb-toggle');
+
+                if ( menuState === 'open' ) {
+
+                    editTitle = {
+                        title: "",
+                        namespaceId: 0,
+                        isEdit: false,
+                        selectedCategories: []
+                    };
+                    loadModalElements(editTitle, wgFABNamespacesAndTemplates);           
+                }
+                else {
+                    $('#md-fab-menu').attr('data-mfb-state', 'open'); 
+                }
+            }            
+        });        
 
         /////////////////////////////////////////////////////////////////////////
 
         $(document).on("click", "#ve_edit_toggle", function (e) {
             e.preventDefault();
 
-            // pageName also include the namespace.
-            var pageName = mw.config.get('wgPageName');
+            var isVeNotActive = (window.location.href.indexOf("veaction") === -1);
             
-            var veLinkTarget =  "/w/index.php?title=" + pageName + "&veaction=edit";
-            window.location = veLinkTarget;
+            if (isVeNotActive) {
+                
+                // pageName also include the namespace.
+                var pageName = mw.config.get('wgPageName');
+
+                var veLinkTarget =  "/w/index.php?title=" + pageName + "&veaction=edit";
+                window.location = veLinkTarget;
+                $('#md-fab-menu .mfb-component__button--main').css('background-color', '#7d7c7c');
+                $('#md-fab-menu .mfb-component__button--main').css('cursor','not-allowed');
+            }
         });
 
         /////////////////////////////////////////////////////////////////////////
         
         $(document).on("click", "#quick_edit_toggle", function (e) {
             e.preventDefault();
+            
+            var isVeNotActive = (window.location.href.indexOf("veaction") === -1);
 
-            var pageTitle = mw.config.get('wgTitle');
-            // pageName also include the namespace.
-            var pageName = mw.config.get('wgPageName');
-            var pageNamespaceId = mw.config.get('wgNamespaceNumber');
-            var pageCategories = mw.config.get('wgCategories');
+            // Check if the current page is special page.
+            // Or user is not currently editing a page using VisualEditor
+            if ( !$('body').hasClass( "ns-special" ) && isVeNotActive ) {
 
-            editTitle = {
-                title: pageTitle,
-                namespaceId: pageNamespaceId,
-                isEdit: true,
-                selectedCategories: pageCategories,
-                pageName: pageName
-            };
+                var pageTitle = mw.config.get('wgTitle');
+                // pageName also include the namespace.
+                var pageName = mw.config.get('wgPageName');
+                var pageNamespaceId = mw.config.get('wgNamespaceNumber');
+                var pageCategories = mw.config.get('wgCategories');
 
-            loadModalElements(editTitle, wgFABNamespacesAndTemplates);
-        });
+                editTitle = {
+                    title: pageTitle,
+                    namespaceId: pageNamespaceId,
+                    isEdit: true,
+                    selectedCategories: pageCategories,
+                    pageName: pageName
+                };
 
+                loadModalElements(editTitle, wgFABNamespacesAndTemplates);
+            }
+        });        
 
         /////////////////////////////////////////////////////////////////////////
 
         $("#content").on("click", ".new", function (e) {            
             
+            var isVeNotActive = (window.location.href.indexOf("veaction") === -1);
+            
             // Check if the visual editor is active right now
-            if(!$('html').hasClass( 've-active' ))
+            if(!$('html').hasClass( 've-active' ) && isVeNotActive)
             {
                 e.preventDefault();
                 var splitedFirst = e.currentTarget.title.split('(');
@@ -820,21 +881,22 @@
         } );
     };
 
-    function loadMaterialFAB(isEnabled = true) {
+    function loadMaterialFAB() {
 
         var menu = mw.template.get("ext.MaterialFAB", "menu.mustache");
-        var disabledBtnColor = "#cacaca";
 
+        var isVeActive = (window.location.href.indexOf("veaction") != -1);
+        
         var createPageMenuData = {
             "menu-id": "md-fab-menu",
-            "menu-location": "br", // bottom-right
-            "menu-toggle-event": "hover",
+            "menu-location": "bl", // bottom-left
+            "menu-toggle-event": "click",
             "main-button": [ 
                 {
                     "href": "#",
-                    "bg-color": (isEnabled ? "#d23f31" : disabledBtnColor),
+                    "bg-color": isVeActive ? "#7d7c7c" : "#d23f31",
                     "label": mw.msg('create-toggle-popup'),
-                    "resting-id": "add_toggle",
+                    "resting-id": "menu_toggle",
                     "resting-class-icon": "material-icons",
                     "resting-icon": "menu",
                     "active-id": "create_toggle",
@@ -842,12 +904,12 @@
                     "active-icon": "add"
                 }
             ],
-            "menu-items": [
+            "menu-items": [                
                 {
                     "id": "quick_edit_toggle",
                     "href": "#",
                     "label": mw.msg("quick-edit-toggle-popup"),
-                    "bg-color": (isEnabled ? "#4CAF50" : disabledBtnColor),                    
+                    "bg-color": "#4CAF50",                    
                     "class-icon": "material-icons",
                     "icon": "style"
                 },
@@ -855,7 +917,7 @@
                     "id": "files_toggle",
                     "href": "#",
                     "label": mw.msg("files-toggle-popup"),
-                    "bg-color": (isEnabled ? "#ffa726" : disabledBtnColor),
+                    "bg-color": "#ffa726",
                     "class-icon": "material-icons",
                     "icon": "perm_media"
                 },  
@@ -863,25 +925,33 @@
                     "id": "ve_edit_toggle",
                     "href": "#",
                     "label": mw.msg("edit-toggle-popup"),
-                    "bg-color": (isEnabled ? "#2196F3" : disabledBtnColor),
+                    "bg-color":"#2196F3",
                     "class-icon": "material-icons",
                     "icon": "mode_edit"
-                }
+                }        
             ]
         };
 
         var randeredMenu = menu.render(createPageMenuData);
 
-        $("body").append(randeredMenu);   
+        $("body").append(randeredMenu);
+        var currentCursor = isVeActive ? 'not-allowed' : 'pointer';
+        $('#md-fab-menu .mfb-component__button--main').css('cursor', currentCursor); 
     }
+    
+    /* 
+        mw.hook( 've.saveDialog.stateChanged' ).add(function(){
+            ve.init.target.saveDialog.$body.find('.ve-ui-mwSaveDialog-summary textarea').val(getSummary());
+        });
+    */
 
-    function loadMaterialFABCreateOnly() {
+    /*function loadMaterialFABCreateOnly() {
 
         var menu = mw.template.get("ext.MaterialFAB", "menu.mustache");
 
         var createPageMenuData = {
             "menu-id": "md-fab-menu",
-            "menu-location": "br", // bottom-right
+            "menu-location": "bl", // bottom-left
             "menu-toggle-event": "hover",
             "main-button": [ 
                 {
@@ -891,7 +961,7 @@
                     "resting-id": "add_toggle",
                     "resting-class-icon": "material-icons",
                     "resting-icon": "add",
-                    "active-id": "create_toggle",
+                    "active-id": "add_toggle",
                     "active-class-icon": "material-icons",
                     "active-icon": "add"
                 }
@@ -901,22 +971,15 @@
         var randeredMenu = menu.render(createPageMenuData);
 
         $("body").append(randeredMenu);   
-    }
+    }*/
     
-    $(function () {
-        // Check if the current page is special page.
-        if(!$('body').hasClass( "ns-special" ))
-        {
-            loadMaterialFAB(true);
-        }
-        else {
-            loadMaterialFABCreateOnly();
-        }
-        
-        loadKwikiFAB();
+    $(function () {    
+        loadApiCategoriesData(categoriesData);
+        loadMaterialFAB();
+        loadKwikiFAB();         
     });
     
+    window.LoadAllCategories = loadApiCategoriesData;
     window.EditOrCreatePage = apiCreatePageWithContext;
     
-
 }(mediaWiki, jQuery));
