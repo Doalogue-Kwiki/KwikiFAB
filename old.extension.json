@@ -1,90 +1,71 @@
 {
     "name": "KwikiFAB",
-    "version": "0.3.0",
-    "author": [
-        "[http://kwiki.co.il Kwiki]",
-        "[[mw:user:HagaiAsaban|Hagai Asaban]]",
-        "[[mw:user:Yacohen|Yacohen]]"
-    ],
+	"version": "0.3.0",
+	"author": [
+		"[http://kwiki.co.il Kwiki]",
+		"[[mw:user:HagaiAsaban|Hagai Asaban]]",
+		"[[mw:user:Yacohen|Yacohen]]"
+	],
     "url": "doalogue-kwiki/KwikiFAB",
     "descriptionmsg": "kwiki-fab-desc",
-    "license-name": "GPL v2",
-    "type": "other",
-    "AutoloadClasses": {
+	"license-name": "GPL v2",
+	"type": "other",
+	"AutoloadClasses": {
         "KwikiFABHooks": "KwikiFAB.hooks.php"
-    },
-    "config": {
-        "FABNamespacesAndTemplates": []
-    },
-    "Hooks": {
-        "BeforePageDisplay": [
+	},
+	"config": {
+		"FABNamespacesAndTemplates": []
+	},
+	"Hooks": {
+		"BeforePageDisplay": [
             "KwikiFABHooks::onBeforePageDisplay"
-        ]
-    },
-    "MessagesDirs": {
+		]
+	},
+	"MessagesDirs": {
         "KwikiFAB": [
-            "i18n"
-        ]
-    },
-    "ResourceModules": {
-        "ext.ApiActions": { 
-            "dependencies": [           
-                "mediawiki.api",
-                "mediawiki.api.edit",
-                "mediawiki.api.parse"
-            ],
-            "scripts": [
-                "modules/ext.ApiActions.js"
-            ],
-            "messages": [
-                "create-page-redirect-to-edit",
-                "edited-successfully",
-                "created-successfully",
-                "modal-continue-to-page",
-                "modal-close-button",
-                "modal-delete-title",
-                "modal-delete-message"
-            ]
-        },
-        "ext.MaterialDialog": {
+			"i18n"
+		]
+	},
+	"ResourceModules": {
+		"ext.MaterialDialog": {
             "dependencies": [
-                "ext.MaterialFAB",                
+                "ext.MaterialFAB",
                 "ext.visualEditor.core",
-                "oojs",
-                "oojs-ui",
-                "oojs-ui-core",
-                "oojs-ui-widgets",
-                "oojs-ui.styles.icons",
+				"oojs",
+				"oojs-ui",
+				"oojs-ui-core",
+				"oojs-ui-widgets",
+				"oojs-ui.styles.icons",
                 "oojs-ui.styles.icons-editing-core",
                 "oojs-ui.styles.icons-moderation",
                 "oojs-ui.styles.icons-content",
-                "mediawiki.widgets"
-            ],
-            "scripts": [                
-                "lib/simply-toast/simply-toast.min.js",
-                "lib/sweetalert/sweetalert.min.js",
+				"mediawiki.widgets"
+			],
+			"scripts": [                
+				"lib/simply-toast/simply-toast.min.js",
+				"lib/sweetalert/sweetalert.min.js",
                 "lib/magic-suggest/magic-suggest.min.js",
                 "lib/tingle/tingle.js",
                 "lib/icheck/icheck.min.js",
                 "lib/underscore/underscore.min.js",
-                "modules/ext.MaterialDialog.js"
-            ],
-            "styles": [                
-                "lib/simply-toast/simply-toast.min.css",
-                "lib/sweetalert/sweetalert.min.css",
+				"modules/ext.MaterialDialog.js"
+			],
+			"styles": [                
+				"lib/simply-toast/simply-toast.min.css",
+				"lib/sweetalert/sweetalert.min.css",
                 "lib/magic-suggest/magic-suggest.min.css",
                 "lib/tingle/tingle.css",
                 "lib/icheck/skins/square/blue.css",
-                "modules/ext.MaterialDialog.css"
-            ],
+				"modules/ext.MaterialDialog.css"
+			],
             "templates": {
                 "dialog.mustache" : "templates/dialog.mustache"
             }
-        },
+		},
         "ext.FilesList": {
             "dependencies": [
-                "ext.MaterialDialog",
-                "ext.ApiActions"
+                "ext.MaterialDialog",                
+                "mediawiki.api"
             ],
             "scripts": [
                 "lib/moment/moment.min.js",
@@ -101,8 +82,11 @@
             "messages": [
                 "title-selected-file",
                 "title-click-select-file",
-                "title-select-file",
-                "files-toggle-popup",                
+                "title-select-file",                
+                "modal-close-button",
+                "files-toggle-popup",
+                "modal-delete-title",
+                "modal-delete-message",
                 "modal-click-to-watch-the-file",
                 "modal-click-to-the-file-page",
                 "modal-add-files-page",
@@ -137,8 +121,8 @@
         "ext.DragAndDropUpload": {
             "dependencies": [
                 "ext.MaterialDialog",
-                "ext.ApiActions",
                 "ext.FilesList",
+                "ext.KwikiFAB",
                 "mediawiki.Upload",
                 "mediawiki.Upload.Dialog"
             ],
@@ -152,79 +136,69 @@
                 "lib/jQuery.filer/css/themes/dragDropBox.css"
             ],            
             "messages": [
+                "modal-close-button",
                 "redirect-files-list",
                 "uploaded-successfully",
                 "modal-upload-label-button",
                 "upload-files-dialog-title",
                 "modal-popup-warning-file-missing",
                 "modal-categories-placeholder",
-                "modal-categories-no-suggestion",
-                "upload-toggle-popup"
+                "modal-categories-no-suggestion"
             ]	
         },
-        "ext.QuickCreateAndEdit": {
-            "dependencies": [
-                "ext.MaterialDialog",
-                "ext.ApiActions",
-                "mediawiki.Title"
-            ],
-            "scripts": [
-                "modules/ext.QuickCreateAndEdit.js"                
+        "ext.KwikiFAB": {
+			"dependencies": [
+				"ext.MaterialDialog",
+                "ext.FilesList",				
+				"mediawiki.Title",
+				"mediawiki.api.edit",
+				"mediawiki.api.parse"			
+			],
+			"scripts": [
+                "modules/ext.KwikiFAB.js"                
+			],
+            "styles": [
+                "modules/ext.KwikiFAB.css"
             ],
             "messages": [
-                "modal-title-input-placeholder",
-                "modal-title-input-label",
+				"modal-title-input-placeholder",
+				"modal-title-input-label",
                 "modal-title-rename-input-label",
-                "modal-popup-warning-page-exists",
-                "modal-categories-selector-label",
-                "modal-categories-placeholder",
-                "modal-namespace-selector-label",
-                "modal-namespace-template-selector-label",
-                "modal-template-selector-label",
-                "modal-template-placeholder",
-                "modal-popup-warning-template-not-exists",
-                "modal-popup-warning-title-missing",
-                "modal-create-page-button",
+				"modal-popup-warning-page-exists",
+				"modal-categories-selector-label",
+				"modal-categories-placeholder",
+				"modal-namespace-selector-label",
+				"modal-namespace-template-selector-label",
+				"modal-template-selector-label",
+				"modal-template-placeholder",
+				"modal-popup-warning-template-not-exists",
+				"modal-popup-warning-title-missing",
+				"modal-create-page-button",
                 "modal-save-page-button",
                 "modal-create-save-popup",
                 "modal-edit-save-popup",
                 "modal-edit-page-button",
                 "modal-redirect-ve-button",
-                "modal-categories-no-suggestion",                
-                "modal-ok-button",
+                "modal-close-button",
+                "modal-categories-no-suggestion",
+                "modal-continue-to-page",
+				"create-page-redirect-to-edit",
+                "edited-successfully",
+				"modal-ok-button",
                 "modal-create-new-red-page",
-                "modal-delete-button",
-                "modal-cancel-button",
-                "modal-if-delete-page"
-            ]			
-        },
-        "ext.KwikiFAB": {
-            "dependencies": [
-                "ext.MaterialDialog",
-                "ext.ApiActions",
-                "ext.QuickCreateAndEdit",
-                "ext.DragAndDropUpload",
-                "ext.FilesList",				
-                "mediawiki.Title"		
-            ],
-            "scripts": [
-                "modules/ext.KwikiFAB.js"                
-            ],
-            "styles": [
-                "modules/ext.KwikiFAB.css"
-            ],
-            "messages": [				
+				"created-successfully",
                 "create-toggle-popup",
                 "edit-toggle-popup",
                 "quick-edit-toggle-popup",
-                "files-toggle-popup"
+                "files-toggle-popup",
+                "upload-toggle-popup"
             ]			
-        }
-    },
-    "ResourceFileModulePaths": {
-        "localBasePath": "",
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
         "remoteExtPath": "KwikiFAB"
-    },
-    "SpecialPages": {},
-    "manifest_version": 1
+	},
+	"SpecialPages": {},
+	"manifest_version": 1
 } 

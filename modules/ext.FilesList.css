@@ -1,3 +1,12 @@
+td.desktop.fileUsage.center-col a {
+    background: rgba(211, 211, 211, 0.37);
+    padding: 1px 5px;
+    margin: 1px;
+    border-radius: 2px;
+    box-shadow: grey 1px 1px 5px -2px;
+    color: #252acc;
+}
+
 /* @noflip */
 #idt-table_filter,
 #idt-table_filter label {

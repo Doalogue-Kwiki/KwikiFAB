@@ -20,9 +20,11 @@ class KwikiFABHooks {
 			) );
 		
 			$out->addModules( array(
+                'ext.ApiActions',
 				'ext.MaterialDialog',
                 'ext.FilesList',
 				'ext.DragAndDropUpload',
+                'ext.QuickCreateAndEdit',
                 'ext.KwikiFAB'
 			) );
 		}

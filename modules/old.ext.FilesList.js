@@ -2,9 +2,83 @@
  * JavaScript for Files List
  */
 (function (mw, $) {
+    
+    var api = new mw.Api();
+    
+    var loadApiFilesData = function () {
+        
+        loadMaterialModal();
+        
+        api.get({
+            formatversion: 2,
+            action: 'query',
+            ailimit: 500,
+            list: 'allimages',
+            utf8: true,
+            aisort: 'timestamp',
+            aidir: 'descending',
+            aiprop: 'url|comment|timestamp|user'
+        }).done(function (res) {
+            apiGetFilesUsage(res.query.allimages);            
+        }).fail(function (code, result) {
+            if (code === "http") {
+                mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
+            } else if (code === "ok-but-empty") {
+                mw.log("Got an empty response from the server");
+            } else {
+                mw.log("API error: " + code);
+            }
+        });
+    };
+    
+    var reloadApiPurge = function( formatedTitles ) {
+        /*
+        /w/api.php?action=purge&format=json&forcelinkupdate=1&titles=FILE:red.png|FILE:Favicon.jpg&utf8=1
+        */
+        api.get({
+            formatversion: 2,
+            action: 'purge',
+            titles: formatedTitles,            
+            forcelinkupdate: true,
+            utf8: true
+        }).done(function (res) {
+            console.log(res);       
+        }).fail(function (code, result) {
+            if (code === "http") {
+                mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
+            } else if (code === "ok-but-empty") {
+                mw.log("Got an empty response from the server");
+            } else {
+                mw.log("API error: " + code);
+            }
+        });
+    };
 
+    var loadPageWikiText = function (pageTitle, filesToAttach) {  
+
+        api.get({
+            formatversion: 2,
+            action: 'parse',
+            prop: 'wikitext',
+            page: pageTitle,
+            utf8: true
+        }).done(function (res) {
+            var wikiText = res.parse.wikitext;
+            removeGalleryAndMediaFromWikiText(pageTitle, wikiText, filesToAttach);                        
+        }).fail(function (code, result) {
+            if (code === "http") {
+                mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
+            } else if (code === "ok-but-empty") {
+                mw.log("Got an empty response from the server");
+            } else {
+                mw.log("API error: " + code);
+            }
+        });
+    };
+    
+    
     function setSortDataTableWithMoment(format, locale) {
-
+        
         var types = $.fn.dataTable.ext.type;
 
         // Add type detection
@@ -21,7 +95,7 @@
 
             return moment(d, format, locale, true).isValid() ?
                 'moment-' + format :
-            null;
+                null;
         });
 
         // Add sorting method - use an integer for the sorting
@@ -31,32 +105,92 @@
             }
             return d === '' || d === null ?
                 -Infinity :
-            parseInt(moment(d, format, locale, true).format('x'), 10);
+                parseInt(moment(d, format, locale, true).format('x'), 10);
         };
     };
 
+    var apiDeletePageWithToken = function( pageTitle ) {
+        
+        var params = "";
+        var modalMsg = 
+            '[' + pageTitle + ']' + mw.msg("modal-delete-message");
+        
+        api.postWithEditToken($.extend({
+            action: 'delete',
+            title: pageTitle,
+            formatversion: '2',
+            // Protect against errors and conflicts
+            assert: mw.user.isAnon() ? undefined : 'user'
+        }, params))
+        .done(function () {
+            swal(
+                mw.msg("modal-delete-title"),
+                modalMsg
+            );
+        }).fail(function (code, result) {
+            if (code === "http") {
+                mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
+            } else if (code === "ok-but-empty") {
+                mw.log("Got an empty response from the server");
+            } else {
+                mw.log("API error: " + code);
+            }
+        });
+
+    };
+    
+    function apiGetFilesUsage( allfilesData ) {
+
+        var allFilesTitles = "";
+
+        allfilesData.map(function (item) {
+            allFilesTitles += '|' + item.title;
+        });
+        
+        api.get({
+            formatversion: 2,
+            action: 'query',
+            prop: 'fileusage',
+            formatversion: '2',
+            titles: allFilesTitles,
+            fulimit: 500,
+            utf8: true
+        }).done(function (res) {            
+            var filesUsageData = res.query.pages;
+            setDataTableData(allfilesData, filesUsageData);
+        }).fail(function (code, result) {
+            if (code === "http") {
+                mw.log("HTTP error: " + result.textStatus); // result.xhr contains the jqXHR object
+            } else if (code === "ok-but-empty") {
+                mw.log("Got an empty response from the server");
+            } else {
+                mw.log("API error: " + code);
+            }
+        });
+    };
+    
     function removeCategoriesFromDescription(commentsText) {
         // Text modification
         function replaceByBlanks(match) {
             // /./ doesn't match linebreaks. /(\s|\S)/ does.
             return match.replace(/(\s|\S)/g, '');         
         }
-
+          
         var findCatRE = new RegExp('(\\[\\[(.*:.*)\\]\\])', 'gi'); 
         commentsText = commentsText.replace(findCatRE, replaceByBlanks);
         commentsText = commentsText.trim();        
 
         return commentsText;
     };
-
+    
     function setDataTableData(allfilesData, filesUsageData) {
-
+        
         var tableData = [];
         var linkTitle = mw.msg("modal-click-to-watch-the-file");
         var fileLinkTitle = mw.msg("modal-click-to-the-file-page");
         var regex = new RegExp('_', 'g');
         var currentPageTitle = mw.config.get('wgTitle'); 
-
+        
         allfilesData.map(function (item) {            
             var itemName = item.name.trim();
             var fileExtension = itemName.split('.').pop().toLowerCase();
@@ -91,18 +225,17 @@
             ] );
 
         } );
-
+        
         loadFilesLists(tableData);
     };
+    
+    function attachSelectedFiles(selectedRowsData) {
 
-    var attachSelectedFiles = function(selectedRowsData) {
-        
         var pageTitle = mw.config.get('wgTitle'); 
         var filesToPurge ="";
         var filesToAttach = "";
         var regexp = /(?!.*\|)(.)+/g;
         var imagesGalleryToAttach = '\n<gallery heights=100px style="text-align:center">'; 
-        
         selectedRowsData.each( function ( value, index ) {
             var currentFile = value[8];
             if (currentFile.indexOf("[[Media:") !== -1) {
@@ -115,34 +248,20 @@
                 }
             }
         } ); 
-
+        
         imagesGalleryToAttach += "\n</gallery>\n";  
         imagesGalleryToAttach += filesToAttach;
-        filesToPurge = filesToPurge + pageTitle;// Text modification
-
-        ApiLoadPageWikiText(pageTitle, function (res) {            
-            var wikiText = res.parse.wikitext;
-            function replaceByBlanks(match) {
-                // /./ doesn't match linebreaks. /(\s|\S)/ does.
-                return match.replace(/(\s|\S)/g, '');         
-            }
-            
-            var wikiTextWithOutGallery = wikiText.replace(/<gallery\b[^<]*(?:(?!<\/gallery>)<[^<]*)*<\/gallery>/g, '');
-            //console.log(wikiTextWithOutGallery);
-            var wikiTextWithOutMedia = wikiTextWithOutGallery.replace(/\[\[((Media|מדיה):.+)\]\]/g, '');
-            var content = wikiTextWithOutMedia.trim();
-            var isNew = (Boolean(content) == false);
-            content += filesToAttach;
-            ApiEditOrCreateNewPage(pageTitle, content, isNew);
-            
-            ApiReloadPurge(filesToPurge, function(){
-                console.log(filesToPurge);
-            });
-        });      
+        
+        //console.log( imagesGalleryToAttach );
+        loadPageWikiText(pageTitle, imagesGalleryToAttach);
+        
+        filesToPurge = filesToPurge + pageTitle;        
+        console.log(filesToPurge);
+        reloadApiPurge(filesToPurge);        
     };    
 
     function attachFileExtensionCheck(fileExtension, fileName) {
-
+        
         var result = "";
 
         switch (fileExtension) {
@@ -158,10 +277,43 @@
             default:
                 result = '[[Media:' + fileName + '|' + fileName + ']]';
         }
-
+        
         return result;
     };
+    
+    function removeGalleryAndMediaFromWikiText( pageTitle, wikiText, filesToAttach ) {
+        // Text modification
+        function replaceByBlanks(match) {
+            // /./ doesn't match linebreaks. /(\s|\S)/ does.
+            return match.replace(/(\s|\S)/g, '');         
+        }
 
+        var wikiTextWithOutGallery = wikiText.replace(/<gallery\b[^<]*(?:(?!<\/gallery>)<[^<]*)*<\/gallery>/g, '');
+        //console.log(wikiTextWithOutGallery);
+        var wikiTextWithOutMedia = wikiTextWithOutGallery.replace(/\[\[((Media|מדיה):.+)\]\]/g, '');
+        var content = wikiTextWithOutMedia.trim();
+                
+        //console.log(content);
+        
+        var isNew = (Boolean(content) == false);
+        content += filesToAttach; 
+        
+        EditOrCreatePage(pageTitle, content, isNew);
+    };
+    
+    function loadMaterialModal() {
+        // Create modal and set his content
+
+        var modalContent =
+            '<img id="loadingSpinner">' + 
+            '<table id="idt-table" class="row-border hover responsive" cellspacing="0" width="100%"></table>';
+        
+        //var modalClass = 'materialDialog';
+        var modalClass = '';       
+
+        MaterialModal( modalContent, modalClass );
+    };
+    
     function loadModalFAB(){
         var toClass = ".tingle-modal";
         var isMenuButtonEnabled = true;
@@ -182,7 +334,7 @@
                 }
             ]
         };       
-
+        
         var addFilesToPageButtonsData = {
             "menu-id": "md-fab-add-to-page",
             "menu-location": "bl", // bottom-left
@@ -200,11 +352,11 @@
                 }
             ]
         };
-
+        
         MaterialAddFAB( uploadMenuButtonsData, toClass );
         MaterialAddFAB( addFilesToPageButtonsData, toClass );
     };
-
+    
     function loadDataTableEvents(dataTable) {
 
         dataTable.on('draw', function () {
@@ -248,7 +400,7 @@
                 cancelButtonText: mw.msg("modal-cancel-button")
             } ).then(function () {
                 dataTable.row(fileRow).remove().draw();
-                ApiDeletePage(fileTitle);
+                apiDeletePageWithToken(fileTitle);
             }, function (dismiss) {
                 // dismiss can be 'cancel', 'overlay',
                 // 'close', and 'timer' 
@@ -302,11 +454,9 @@
             }
         } );
     };
-
-    
     
     function loadFilesLists(tableData) {        
-
+                         
         setSortDataTableWithMoment("DD/MM/YY HH:mm");
 
         var dataTable = $('#idt-table').DataTable({
@@ -364,7 +514,7 @@
                         }
                         return isFileChecked ? 
                             '<input title="'+ mw.msg("title-selected-file") + '" type="checkbox" checked/>' : 
-                        '<input title="' + mw.msg("title-click-select-file") + '" type="checkbox" />'
+                            '<input title="' + mw.msg("title-click-select-file") + '" type="checkbox" />'
                     }
                 },
                 {
@@ -411,48 +561,14 @@
                     var currentTitle = $(this)[0].title;
                     $(this).parent().attr('title', currentTitle);
                 } );
-
+                
                 loadModalFAB();
 
                 $('#loadingSpinner').remove();
                 //or $('#loadingSpinner").empty();
             }
         });
-
-        loadDataTableEvents(dataTable);          
-    };
-    
-    var loadAllFilesModal = function() {
-        // Create modal and set his content
-
-        var modalContent =
-            '<img id="loadingSpinner">' + 
-            '<table id="idt-table" class="row-border hover responsive" cellspacing="0" width="100%"></table>';
-
-        //var modalClass = 'materialDialog';
-        var modalClass = '';       
-
-        MaterialModal( modalContent, modalClass );
-        var allfilesData = [];
-        var filesUsageData = [];
-        
-        ApiLoadAllFilesData(function (res) {            
-            allfilesData = res.query.allimages;
-            var allFilesTitles = "";
-
-            allfilesData.map(function (item) {
-                allFilesTitles += '|' + item.title;
-            });
-            
-            if(allFilesTitles) {                                
-                ApiLoadFilesUsage(allFilesTitles, function (res) {                    
-                    filesUsageData = res.query.pages;
-                    setDataTableData(allfilesData, filesUsageData);
-                }); 
-            } else {
-                setDataTableData(allfilesData, filesUsageData);
-            }
-        });
+        loadDataTableEvents(dataTable);
     };
 
     $(function () {
@@ -460,15 +576,17 @@
             e.preventDefault();
             var isVeNotActive = (window.location.href.indexOf("veaction") === -1);            
             $('#md-fab-menu').attr('data-mfb-state', 'close');
-
+            
             if ( $(".materialDialog").length < 1 && isVeNotActive ) {                                       
-                loadAllFilesModal();
+                loadApiFilesData();
             } else {
                 return false;   
             }
         });        
     });
-
-    window.LoadAllFilesModal = loadAllFilesModal;
+    
+    window.ReloadApiPurge = reloadApiPurge;
+    window.LoadFilesListModal = loadApiFilesData;
+    window.ApiDeletePage = apiDeletePageWithToken;
 
 }(mediaWiki, jQuery));

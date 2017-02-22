@@ -3,207 +3,247 @@
  */
 (function (mw, $) {
 
-    var fileToUpload;
-    /*
-    var categoriesFileSelector;
-    var categoriesData;
-    */
-    var fileDescription = "";
-    var api = new mw.Api;
-    
-    function handleFileSelect() {
-        
-        if (fileToUpload) {
+    var filesToUpload = [];
 
-            var fileComment = "";
-            var renameFile = $("#renameFile").val();
-            var fileName = fileToUpload.name;
+    function handleFilesSelect() {
 
-            if (renameFile) {
-                fileName = renameFile;
-            } 
+        if (filesToUpload.length) {
 
-            /*var selectedCategoriesText = "";
-            var selectedCategories = categoriesFileSelector.getValue();
-
-            selectedCategories.forEach(function (item) {
-                selectedCategoriesText += "\n" + "[[category:" + item.toString() + "]]";
+            _.each(filesToUpload, function (file) {
+                console.log("file:", file);
+                uploadFile(file, file.name);
             });
 
-            fileComment = fileDescription + selectedCategoriesText;
-            */
-            
-            uploadFile(fileToUpload, fileDescription, fileName);
-            
         } else {
             $.simplyToast(mw.msg("modal-popup-warning-file-missing"), 'danger');
-        }
+        }        
+
+        swal({
+            title: mw.msg("uploaded-successfully"),
+            text: mw.msg("redirect-files-list"),
+            confirmButtonText: mw.msg("modal-ok-button")
+        }).then(function () {
+            LoadAllFilesModal();
+        });
     };
-    
-    function uploadFile(fileToUpload, fileComment, fileName) {
-        
+
+    function uploadFile(fileToUpload, fileName, fileComment = "") {
+
         formdata = new FormData(); //see https://developer.mozilla.org/en-US/docs/Web/Guide/Using_FormData_Objects?redirectlocale=en-US&redirectslug=Web%2FAPI%2FFormData%2FUsing_FormData_Objects
-        
-        formdata.append("action", "upload");        
+
+        formdata.append("action", "upload");
         formdata.append("ignorewarnings", false);
-        formdata.append("token", mw.user.tokens.get( 'editToken' ) );
+        formdata.append("token", mw.user.tokens.get('editToken'));
         formdata.append("file", fileToUpload);
         formdata.append("comment", fileComment);
         formdata.append("filename", fileName);
 
+        var formatedFileName = "FILE:" + fileName;
+        console.log(formatedFileName);
+
         //as we now have created the data to send, we send it...
-        $.ajax( { 
-            url: mw.util.wikiScript( 'api' ), //url to api.php 
+        $.ajax({
+            url: mw.util.wikiScript('api'), //url to api.php 
             contentType: false,
             processData: false,
             type: 'POST',
-            data: formdata,//the formdata object we created above
-            success:function(data){
-                swal({
-                    title: mw.msg("uploaded-successfully"),
-                    text: mw.msg("redirect-files-list"),
-                    confirmButtonText: mw.msg("modal-ok-button")
-                }).then(function () {
-                    /*
-                    console.log(data);         
-                    var uploadedImageInfo = data.upload.imageinfo;
-                    */                            
-                    LoadApiFilesData();
+            data: formdata, //the formdata object we created above
+            success: function () {
+                ApiReloadPurge(formatedFileName, function () {
+                    console.log(formatedFileName);
                 });
             },
-            error:function(xhr,status, error){
+            error: function (xhr, status, error) {
                 console.log(error)
             }
-        });      
+        });
     };
 
     // Create and append a window manager, which opens and closes the window.
     function loadDragAndDropUpload() {
 
-        /*
-        categoriesData = new Array();
-        LoadAllCategories(categoriesData);
-        */
-        
         // Create modal and set his content
-        var modalContent =
-            '<input type="file" id="uploadInputFile" class="dropify" data-height="400" />';
+        var modalContent = '<input id="uploadInputFiles" type="file" name="files[]" multiple="multiple">';
 
-        //var modalClass = 'materialDialog';   
         var modalClass = '';
 
         MaterialModal(modalContent, modalClass);
 
-        $('#uploadInputFile').dropify({
-            messages: {
-                default: "גרור ושחרר קבצים לכאן או לחץ",
-                replace: "גרור ושחרר קבצים לכאן או לחץ להחלפת הקובץ",
-                remove: "הסר",
-                error: "Ooops, something wrong appended."
+        $('#uploadInputFiles').filer({
+            addMore: true,
+            showThumbs: true,
+            changeInput: '<div class="jFiler-input-dragDrop"><div class="jFiler-input-inner"><div class="jFiler-input-icon"><i class="icon-jfi-cloud-up-o"></i></div><div class="jFiler-input-text"><h3>גרור ושחרר קבצים כאן</h3> <span style="display:inline-block; margin: 15px 0">או</span></div><a class="jFiler-input-choose-btn blue">בחר קבצים</a></div></div>',
+            theme: "dragdropbox",
+            templates: {
+                box: '<ul class="jFiler-items-list jFiler-items-grid"></ul>',
+                item: '<li class="jFiler-item">\
+                <div class="jFiler-item-container">\
+                <div class="jFiler-item-inner">\
+                <div class="jFiler-item-thumb">\
+                <div class="jFiler-item-status"></div>\
+                <div class="jFiler-item-thumb-overlay">\
+                <div class="jFiler-item-info">\
+                <div style="display:table-cell;vertical-align: middle;">\
+                <span class="jFiler-item-title"><b title="{{fi-name}}">{{fi-name}}</b></span>\
+                <span class="jFiler-item-others">{{fi-size2}}</span>\
+                </div>\
+                </div>\
+                </div>\
+                {{fi-image}}\
+                </div>\
+                <div class="jFiler-item-assets jFiler-row">\
+                <ul class="list-inline pull-left">\
+                <li>{{fi-progressBar}}</li>\
+                </ul>\
+                <ul class="list-inline pull-right">\
+                <li><a class="fa fa-trash-o jFiler-item-trash-action"></a></li>\
+                </ul>\
+                </div>\
+                </div>\
+                </div>\
+                </li>',
+                itemAppend: '<li class="jFiler-item">\
+                <div class="jFiler-item-container">\
+                <div class="jFiler-item-inner">\
+                <div class="jFiler-item-thumb">\
+                <div class="jFiler-item-status"></div>\
+                <div class="jFiler-item-thumb-overlay">\
+                <div class="jFiler-item-info">\
+                <div style="display:table-cell;vertical-align: middle;">\
+                <span class="jFiler-item-title"><b title="{{fi-name}}">{{fi-name}}</b></span>\
+                <span class="jFiler-item-others">{{fi-size2}}</span>\
+                </div>\
+                </div>\
+                </div>\
+                {{fi-image}}\
+                </div>\
+                <div class="jFiler-item-assets jFiler-row">\
+                <ul class="list-inline pull-left">\
+                <li><span class="jFiler-item-others">{{fi-icon}}</span></li>\
+                </ul>\
+                <ul class="list-inline pull-right">\
+                <li><a class="fa fa-trash-o jFiler-item-trash-action"></a></li>\
+                </ul>\
+                </div>\
+                </div>\
+                </div>\
+                </li>',
+                progressBar: '<div class="bar"></div>',
+                itemAppendToEnd: false,
+                canvasImage: true,
+                removeConfirmation: false,
+                _selectors: {
+                    list: '.jFiler-items-list',
+                    item: '.jFiler-item',
+                    progressBar: '.bar',
+                    remove: '.jFiler-item-trash-action'
+                }
             },
-            error: {
-                fileSize: "The file size is too big ({{ value }} max).",
-                minWidth: "The image width is too small ({{ value }}}px min).",
-                maxWidth: "The image width is too big ({{ value }}}px max).",
-                minHeight: "The image height is too small ({{ value }}}px min).",
-                maxHeight: "The image height is too big ({{ value }}px max).",
-                imageFormat: "The image format is not allowed ({{ value }} only).",
-                fileExtension: "The file is not allowed ({{ value }} only)."
+            onRemove: function (itemEl, file, ...args) {
+                filesToUpload = _.without(filesToUpload, file);
+            
+                // remove the upload file toggle in case that the file list is empty.
+                if(!filesToUpload.length) {
+                    $("#md-upload-fab").remove();
+                }
             },
-            tpl: {
-                wrap: '<div class="dropify-wrapper"></div>',
-                loader: '<div class="dropify-loader"></div>',
-                message: '<div class="dropify-message"><span class="file-icon" /> <p>{{ default }}</p></div>',
-                preview: '<div class="dropify-preview"><span class="dropify-render"></span><div class="dropify-infos"><div class="dropify-infos-inner"><p class="dropify-infos-message">{{ replace }}</p></div></div></div>',
-                filename: '',
-                clearButton: '<button type="button" class="dropify-clear">{{ remove }}</button>',
-                errorLine: '<p class="dropify-error">{{ error }}</p>',
-                errorsContainer: '<div class="dropify-errors-container"><ul></ul></div>'
+            onSelect: function (file, ...args) {             
+                filesToUpload.push(file);
+                
+                // add the button only if is not existing
+                if (!$("#md-upload-fab").length) {
+
+                    var uploadMenuButtonsData = {
+                        "menu-id": "md-upload-fab",
+                        "menu-location": "bl", // bottom-left
+                        "menu-toggle-event": "hover",
+                        "main-button": [
+                            {
+                                "bg-color": '#2196F3',
+                                "label": mw.msg("upload-toggle-popup"),
+                                "resting-id": "done_upload_toggle",
+                                "resting-class-icon": "material-icons",
+                                "resting-icon": "cloud_upload",
+                                "active-id": "done_upload_toggle",
+                                "active-class-icon": "material-icons",
+                                "active-icon": "cloud_upload"
+                            }
+                        ]
+                    };
+                    var toClass = ".tingle-modal";
+                    MaterialAddFAB(uploadMenuButtonsData, toClass);
+                }                
+            },
+            dragDrop: {
+                dragEnter: null,
+                dragLeave: null,
+                drop: null,
+                dragContainer: null,
+            },
+            captions: {
+                button: "Choose Files",
+                feedback: "Choose files To Upload",
+                feedback2: "files were chosen",
+                drop: "Drop file here to Upload",
+                removeConfirmation: "Are you sure you want to remove this file?",
+                errors: {
+                    filesLimit: "Only {{fi-limit}} files are allowed to be uploaded.",
+                    filesType: "Only Images are allowed to be uploaded.",
+                    filesSize: "{{fi-name}} is too large! Please upload file up to {{fi-fileMaxSize}} MB.",
+                    filesSizeAll: "Files you've choosed are too large! Please upload files up to {{fi-maxSize}} MB.",
+                    folderUpload: "You are not allowed to upload folders."
+                }
             }
         });
-    }
+    };
+
+    var addUploadToggle = function (e) {
+
+        e.preventDefault();
+        
+        // add the button only if is not existing
+        if (!$("#md-upload-fab").length) {
+
+            var isMenuButtonEnabled = true;
+
+            var uploadMenuButtonsData = {
+                "menu-id": "md-upload-fab",
+                "menu-location": "bl", // bottom-left
+                "menu-toggle-event": "hover",
+                "main-button": [
+                    {
+                        "bg-color": (isMenuButtonEnabled ? '#2196F3' : '#cacaca'),
+                        "label": mw.msg("upload-toggle-popup"),
+                        "resting-id": "done_upload_toggle",
+                        "resting-class-icon": "material-icons",
+                        "resting-icon": "cloud_upload",
+                        "active-id": "done_upload_toggle",
+                        "active-class-icon": "material-icons",
+                        "active-icon": "cloud_upload"
+                    }
+                ]
+            };
+
+            var toClass = ".tingle-modal";
+
+            MaterialAddFAB(uploadMenuButtonsData, toClass);
+        }
+        
+        filesToUpload = e.target.files;
+    };
 
     $(function () {
+        
         $(document).on("click", "#upload_toggle", function (e) {
             e.preventDefault();
             loadDragAndDropUpload();
         });
 
-        $(document).on("change", "#uploadInputFile", function (e) {
-            e.preventDefault();
-
-            // add the button only if is not existing
-            if (!$("#md-upload-fab").length) {
-
-                var isMenuButtonEnabled = true;
-
-                var uploadMenuButtonsData = {
-                    "menu-id": "md-upload-fab",
-                    "menu-location": "bl", // bottom-left
-                    "menu-toggle-event": "hover",
-                    "main-button": [
-                        {
-                            "bg-color": (isMenuButtonEnabled ? '#2196F3' : '#cacaca'),
-                            "label": mw.msg("upload-toggle-popup"),
-                            "resting-id": "done_upload_toggle",
-                            "resting-class-icon": "material-icons",
-                            "resting-icon": "cloud_upload",
-                            "active-id": "done_upload_toggle",
-                            "active-class-icon": "material-icons",
-                            "active-icon": "cloud_upload"
-                        }
-                    ]
-                };
-
-                var toClass = ".tingle-modal";
-                
-                /*
-                var htmlInputs =
-                    '<span class="oo-ui-labelElement-label"> שם הקובץ </span>' +
-                    '<input id="renameFile" type="text" \>' +
-                    '<span class="oo-ui-labelElement-label"> תיאור </span>' +
-                    '<textarea id="fileDescription" rows="4" placeholder="הוסף תיאור לקובץ ..." autofocus></textarea>' + 
-                    '<span class="oo-ui-labelElement-label"> קטגוריות </span>' +
-                    '<input id="categoriesFileSelector" type="text" \>';
-                */
-                var htmlInputs =
-                    '<span class="oo-ui-labelElement-label"> שם הקובץ </span>' +
-                    '<input id="renameFile" type="text" \>' +
-                    '<span class="oo-ui-labelElement-label"> תיאור </span>' +
-                    '<textarea id="fileDescription" rows="4" placeholder="הוסף תיאור לקובץ ..." autofocus></textarea>';
-
-                $(".tingle-modal-box__content").append(htmlInputs);
-                
-                MaterialAddFAB(uploadMenuButtonsData, toClass);
-                /*
-                categoriesFileSelector = $('#categoriesFileSelector').magicSuggest( {        
-                    sortOrder: 'name',
-                    data: categoriesData,
-                    noSuggestionText: mw.msg("modal-categories-no-suggestion"),
-                    placeholder: mw.msg("modal-categories-placeholder"),
-                    toggleOnClick: true,
-                    strictSuggest: true,
-                    maxDropHeight: 150,
-                    useCommaKey: false,
-                    selectionStacked: true            
-                } );
-                */
-                
-            }
-            
-            fileToUpload = e.target.files[0];
-            $("#renameFile").val(fileToUpload.name);
-        });
-
-        $(document).on("blur", "#fileDescription", function (e) {
-            e.preventDefault();
-            fileDescription = $('#fileDescription').val();
-        });
-
         $(document).on("click", "#done_upload_toggle", function (e) {
             e.preventDefault();
-            handleFileSelect();
+            handleFilesSelect();
         });
+        
     });
 
 }(mediaWiki, jQuery));

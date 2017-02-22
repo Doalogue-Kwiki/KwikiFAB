@@ -9,8 +9,7 @@
                                           mainActionFunc,
                                           height, 
                                           windowManager, 
-                                          dialogSize )
-	{
+                                          dialogSize ) {
 		function MaterialDialog( config ) {
 			MaterialDialog.parent.call( this, config );
 			this.broken = true;
@@ -23,7 +22,7 @@
 		MaterialDialog.static.title = title;
 		
 		MaterialDialog.static.actions = actions;
-		
+
 		MaterialDialog.prototype.initialize = function () {
 
 			MaterialDialog.parent.prototype.initialize.apply( this, arguments );
@@ -61,9 +60,10 @@
 				return new OO.ui.Process( function () {				
 					
 					try {
+                        
                         if (mainActionFunc)
                         {
-                            mainActionFunc(dialog, action, windowManager);	
+                            mainActionFunc(dialog, action, windowManager);	                                                    
                         }
 					}
 					catch (e) {
@@ -80,7 +80,7 @@
 				} );
 			}
 		};
-
+        
         window.ve.ui.windowFactory.register( MaterialDialog );
 
 		return new MaterialDialog( { 
@@ -100,12 +100,15 @@
             var windowManager = new ve.ui.WindowManager();            
     
 			var materialDialog = 
-				createMaterialDialog( title, actions, content, mainActionFunc, height, windowManager );		
+				createMaterialDialog( title, actions, content, mainActionFunc, height, windowManager );
+                      
 			windowManager.addWindows( [ materialDialog ] );
 			// Open the window!
 			windowManager.openWindow( materialDialog );
 			
 			$( 'body' ).append( windowManager.$element );
+            
+            return materialDialog;
 		}
         else {
             console.log("material dialog is allready open");
@@ -146,4 +149,4 @@
     
 	window.MaterialDialog = openMaterialDialog;
 	
-}( mediaWiki, jQuery ) );
+}( mediaWiki, jQuery ));
